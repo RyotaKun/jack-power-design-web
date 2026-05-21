@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Power Design · Web — beyond HTML</title>
+<meta name="description" content="The modern website design stack — tokens, shadcn, Tailwind, Radix, OKLCH, motion, theming. From hand-written HTML to a real design system.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,wght@1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070810;
+    --card: #0f1119;
+    --card-2: #131623;
+    --ui: #171a27;
+    --border: #242838;
+    --border-2: #2e3244;
+    --text: #f4f4f5;
+    --muted: #a1a1aa;
+    --dim: #6b7280;
+
+    --teal: #2DD4BF;          --teal-2: #5EEAD4;
+    --mint: #34D399;          --mint-2: #6EE7B7;
+    --sky: #60A5FA;           --sky-2: #93C5FD;
+    --violet: #A78BFA;        --violet-2: #C4B5FD;
+    --pink: #F472B6;          --pink-2: #F9A8D4;
+    --orange: #FF8C5A;        --orange-2: #FFB088;
+    --amber: #FBBF24;         --amber-2: #FCD34D;
+    --red: #EF4444;
+
+    /* Radix-12 scale (slate) for the swatch demo */
+    --r1: #0F172A; --r2: #1E293B; --r3: #334155; --r4: #475569;
+    --r5: #64748B; --r6: #94A3B8; --r7: #CBD5E1; --r8: #E2E8F0;
+    --r9: #F1F5F9; --r10:#F8FAFC; --r11:#FAFCFE; --r12:#FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; min-height: 100vh; position: relative;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(900px at 12% 6%, rgba(45,212,191,0.10), transparent 60%),
+      radial-gradient(700px at 88% 30%, rgba(167,139,250,0.08), transparent 60%),
+      radial-gradient(600px at 50% 90%, rgba(96,165,250,0.06), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  @keyframes travel { 0% { top: -12px; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: calc(100% + 12px); opacity: 0; } }
+  @keyframes flowDash { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+  @keyframes glow { 0%,100% { box-shadow: 0 0 16px rgba(45,212,191,0.35); } 50% { box-shadow: 0 0 32px rgba(45,212,191,0.65); } }
+  @keyframes scrollLight { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+  .wrap { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 80px 32px 120px; }
+
+  /* ============ NAV ============ */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(7,8,16,0.78); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.top .inner {
+    max-width: 1180px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+  }
+  nav.top .left { display: flex; align-items: center; gap: 14px; }
+  nav.top .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800;
+    letter-spacing: 0.18em; color: var(--teal-2);
+    padding: 6px 12px; background: rgba(45,212,191,0.10);
+    border: 1px solid rgba(45,212,191,0.30); border-radius: 100px;
+  }
+  nav.top .title { font-size: 14px; font-weight: 700; color: var(--text); }
+  nav.top .title em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: var(--muted); }
+  nav.top .right { display: flex; gap: 14px; flex-wrap: wrap; }
+  nav.top .right a {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    text-decoration: none; padding: 6px 10px; border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+  }
+  nav.top .right a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+
+  /* ============ HERO ============ */
+  .hero { text-align: center; margin-bottom: 80px; animation: fadeInUp 0.9s ease-out; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.18em; color: var(--teal-2); margin-bottom: 24px; text-transform: uppercase;
+  }
+  .eyebrow .line-l, .eyebrow .line-r { width: 28px; height: 2px; }
+  .eyebrow .line-l { background: linear-gradient(90deg, transparent, var(--teal)); }
+  .eyebrow .line-r { background: linear-gradient(90deg, var(--teal), transparent); }
+
+  h1 { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0 auto 30px; }
+  h1 .line-main {
+    font-size: clamp(48px, 7vw, 96px); font-weight: 800; letter-spacing: -0.038em; line-height: 1.0;
+    color: #ffffff;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: clamp(12px, 1.6vw, 22px);
+  }
+  h1 .line-main .beyond { color: var(--teal-2); }
+  h1 .line-main .html { color: var(--violet-2); }
+  h1 .subline {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(17px, 1.8vw, 22px); font-weight: 400; font-style: italic;
+    color: var(--muted); margin-top: 24px; max-width: 780px;
+  }
+  .hero-brands { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 9px 18px 9px 9px; font-size: 14px; font-weight: 700;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 100px; color: var(--text);
+  }
+  .chip .lmark {
+    width: 28px; height: 28px; padding: 4px; border-radius: 7px; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;
+  }
+  .chip .lmark img, .chip .lmark svg { width: 100%; height: 100%; object-fit: contain; }
+  .chip.c-shadcn { border-color: rgba(255,255,255,0.30); }
+  .chip.c-tailwind { border-color: rgba(96,165,250,0.45); color: var(--sky-2); background: rgba(96,165,250,0.10); }
+  .chip.c-radix { border-color: rgba(167,139,250,0.45); color: var(--violet-2); background: rgba(167,139,250,0.10); }
+  .chip.c-vercel { border-color: rgba(255,255,255,0.30); color: var(--text); background: rgba(255,255,255,0.04); }
+  .chip.c-figma { border-color: rgba(244,114,182,0.45); color: var(--pink-2); background: rgba(244,114,182,0.10); }
+  .chip.c-motion { border-color: rgba(94,234,212,0.45); color: var(--teal-2); background: rgba(94,234,212,0.10); }
+
+  /* ============ CONNECTOR ============ */
+  .connector { position: relative; width: 3px; height: 200px; margin: 0 auto; }
+  .connector::before {
+    content: ''; position: absolute; inset: 0; border-radius: 2px;
+    background: linear-gradient(180deg, var(--from, var(--teal)), var(--to, var(--violet)));
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  }
+  .connector::after {
+    content: ''; position: absolute; inset: -1px -6px; border-radius: 4px;
+    background: linear-gradient(180deg, var(--from, var(--teal)), var(--to, var(--violet)));
+    opacity: 0.22; filter: blur(11px);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  }
+  .connector .travel {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 36px; border-radius: 50%;
+    background: radial-gradient(ellipse at center, var(--to) 0%, var(--to) 30%, transparent 70%);
+    filter: blur(4px); box-shadow: 0 0 22px var(--to, var(--violet));
+    animation: travel 5.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  }
+  .c-1 { --from: var(--teal); --to: var(--violet); }
+  .c-2 { --from: var(--violet); --to: var(--sky); }
+  .c-3 { --from: var(--sky); --to: var(--mint); }
+  .c-4 { --from: var(--mint); --to: var(--pink); }
+  .c-5 { --from: var(--pink); --to: var(--orange); }
+  .c-6 { --from: var(--orange); --to: var(--amber); }
+  .c-7 { --from: var(--amber); --to: var(--teal); }
+  .c-8 { --from: var(--teal); --to: var(--mint); }
+  .c-9 { --from: var(--mint); --to: var(--violet); }
+
+  /* ============ SECTION ============ */
+  section.stage {
+    max-width: 1080px; margin: 0 auto;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  section.stage.in-view { opacity: 1; transform: translateY(0); }
+  .section-head { text-align: center; margin-bottom: 56px; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 100px;
+    background: rgba(0,0,0,0.4); color: var(--accent, var(--teal-2));
+    border: 1px solid color-mix(in srgb, var(--accent, var(--teal-2)) 40%, transparent);
+    margin-bottom: 26px;
+  }
+  .section-tag .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent, var(--teal-2));
+    animation: pulse 2s infinite;
+  }
+  .section-h {
+    font-size: clamp(40px, 5.4vw, 72px); font-weight: 800; letter-spacing: -0.034em;
+    line-height: 1.05; margin-bottom: 20px;
+  }
+  .section-h em {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600;
+    color: var(--accent, var(--teal-2));
+  }
+  .section-sub {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 23px); color: var(--muted); max-width: 740px; margin: 0 auto;
+    line-height: 1.5;
+  }
+  .s-tokens { --accent: var(--mint-2); }
+  .s-shadcn { --accent: #ffffff; }
+  .s-tailwind { --accent: var(--sky-2); }
+  .s-radix { --accent: var(--violet-2); }
+  .s-color { --accent: var(--teal-2); }
+  .s-grid { --accent: var(--orange-2); }
+  .s-systems { --accent: var(--pink-2); }
+  .s-motion { --accent: var(--amber-2); }
+  .s-stack { --accent: var(--mint-2); }
+  .s-outro { --accent: var(--teal-2); }
+
+  /* ============ TOKENS — cascade diagram ============ */
+  .token-cascade {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 36px 32px;
+  }
+  .token-cascade-grid {
+    display: grid; grid-template-columns: 1fr 36px 1fr 36px 1fr;
+    gap: 12px; align-items: stretch;
+  }
+  @media (max-width: 880px) {
+    .token-cascade-grid { grid-template-columns: 1fr; }
+    .token-cascade-grid .arr { transform: rotate(90deg); justify-self: center; }
+  }
+  .token-cascade-grid .arr {
+    align-self: center;
+    color: var(--mint-2); font-family: 'JetBrains Mono', monospace;
+    font-size: 26px; font-weight: 900; text-align: center;
+  }
+  .tc-card {
+    background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .tc-card .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase;
+  }
+  .tc-card .ttl { font-size: 17px; font-weight: 800; letter-spacing: -0.014em; color: var(--text); }
+  .tc-card .sub {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .tc-card.l-json { --accent: var(--amber-2); border-color: rgba(252,211,77,0.30); }
+  .tc-card.l-css  { --accent: var(--sky-2); border-color: rgba(147,197,253,0.30); }
+  .tc-card.l-comp { --accent: var(--mint-2); border-color: rgba(110,231,183,0.30); }
+
+  .tc-code {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.65;
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 8px;
+    padding: 10px 12px; color: #d4d4d8; overflow: hidden;
+  }
+  .tc-code .k { color: var(--violet-2); }
+  .tc-code .s { color: var(--mint-2); }
+  .tc-code .c { color: var(--sky-2); }
+  .tc-code .n { color: var(--amber-2); }
+
+  .tc-button {
+    align-self: flex-start;
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--mint); color: #052e26; font-weight: 700; font-size: 13px;
+    border: none; cursor: default;
+    box-shadow: 0 4px 14px rgba(52,211,153,0.30);
+  }
+
+  .token-origin {
+    margin-top: 28px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  @media (max-width: 720px) { .token-origin { grid-template-columns: 1fr; } }
+  .to-card {
+    background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .to-card .yr {
+    font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 900;
+    color: var(--mint-2); letter-spacing: -0.02em;
+  }
+  .to-card .body {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13.5px;
+    color: var(--muted); line-height: 1.5; flex: 1;
+  }
+  .to-card .body strong { color: var(--text); font-weight: 700; font-style: normal; font-family: 'Inter', sans-serif; }
+  .to-card .body a { color: var(--mint-2); text-decoration: none; border-bottom: 1px dotted rgba(110,231,183,0.4); }
+
+  /* ============ SHADCN — comparison ============ */
+  .shadcn-split {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 880px) { .shadcn-split { grid-template-columns: 1fr; } }
+  .shadcn-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 28px;
+  }
+  .shadcn-card .head {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .shadcn-card .head .lab {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase;
+  }
+  .shadcn-card .head .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.10em; color: var(--dim); text-transform: uppercase;
+    padding: 4px 8px; border: 1px solid var(--border); border-radius: 100px;
+  }
+  .shadcn-card h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.020em; line-height: 1.2; margin-bottom: 10px; }
+  .shadcn-card h3 em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600; color: var(--accent); }
+  .shadcn-card .body {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14.5px;
+    color: var(--muted); line-height: 1.55; margin-bottom: 16px;
+  }
+  .shadcn-card .terminal {
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 10px;
+    overflow: hidden; margin-bottom: 14px;
+  }
+  .shadcn-card .terminal .bar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px; background: #0e1119; border-bottom: 1px solid var(--border-2);
+  }
+  .shadcn-card .terminal .bar .d { width: 7px; height: 7px; border-radius: 50%; background: var(--border-2); }
+  .shadcn-card .terminal .bar .lab {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim); margin-left: 6px;
+  }
+  .shadcn-card .terminal .body-c {
+    padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    line-height: 1.7; color: #d4d4d8;
+  }
+  .shadcn-card .terminal .body-c .p { color: var(--mint-2); }
+  .shadcn-card .terminal .body-c .c { color: var(--dim); }
+  .shadcn-card .terminal .body-c .k { color: var(--violet-2); }
+
+  .shadcn-card.bad { --accent: #f9a8d4; border-color: rgba(249,168,212,0.25); }
+  .shadcn-card.good { --accent: var(--teal-2); border-color: rgba(45,212,191,0.30); background: linear-gradient(180deg, rgba(45,212,191,0.04), transparent); }
+
+  .shadcn-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .shadcn-card ul li { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .shadcn-card ul li .b { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .shadcn-card.bad ul li { opacity: 0.85; }
+
+  /* ============ TAILWIND — live demo ============ */
+  .tw-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 32px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+    align-items: center;
+  }
+  @media (max-width: 880px) { .tw-wrap { grid-template-columns: 1fr; } }
+  .tw-info h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.020em; line-height: 1.25; margin-bottom: 10px; }
+  .tw-info h3 em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600; color: var(--sky-2); }
+  .tw-info p {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14.5px;
+    color: var(--muted); line-height: 1.55; margin-bottom: 14px;
+  }
+  .tw-info ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .tw-info ul li { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .tw-info ul li .b { width: 6px; height: 6px; border-radius: 50%; background: var(--sky-2); }
+
+  .tw-stage {
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 14px;
+    padding: 22px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .tw-stage .source {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7; color: #d4d4d8;
+  }
+  .tw-stage .source .k { color: var(--violet-2); }
+  .tw-stage .source .c { color: var(--dim); font-style: italic; }
+  .tw-stage .source .s { color: var(--mint-2); }
+  .tw-stage .source .a { color: var(--sky-2); }
+  .tw-stage .source .v { color: var(--amber-2); }
+  .tw-stage .arrow-down {
+    color: var(--sky-2); text-align: center; font-family: 'JetBrains Mono', monospace;
+    font-weight: 900; font-size: 18px;
+  }
+  .tw-stage .render {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px dashed rgba(255,255,255,0.10); border-radius: 10px;
+    padding: 22px; display: flex; align-items: center; justify-content: center;
+  }
+  .tw-stage .render .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px;
+    background: var(--sky); color: #052e26; font-weight: 700; font-size: 14px;
+    box-shadow: 0 8px 22px rgba(96,165,250,0.35);
+    border: none;
+  }
+
+  /* ============ RADIX — primitives layout ============ */
+  .radix-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 32px;
+  }
+  .radix-stack {
+    display: grid; grid-template-columns: 1fr; gap: 8px;
+    max-width: 720px; margin: 0 auto 24px;
+  }
+  .radix-layer {
+    padding: 16px 22px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--border);
+  }
+  .radix-layer .name {
+    font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.012em;
+  }
+  .radix-layer .name em {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500;
+    color: var(--muted); margin-left: 8px; font-size: 13px;
+  }
+  .radix-layer .lab {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em;
+    color: var(--accent); text-transform: uppercase;
+  }
+  .radix-layer.l-style { background: linear-gradient(180deg, rgba(147,197,253,0.10), rgba(96,165,250,0.04)); border-color: rgba(96,165,250,0.30); --accent: var(--sky-2); }
+  .radix-layer.l-behavior { background: linear-gradient(180deg, rgba(196,181,253,0.10), rgba(167,139,250,0.04)); border-color: rgba(167,139,250,0.30); --accent: var(--violet-2); }
+  .radix-layer.l-a11y { background: linear-gradient(180deg, rgba(110,231,183,0.10), rgba(52,211,153,0.04)); border-color: rgba(52,211,153,0.30); --accent: var(--mint-2); }
+  .radix-quote {
+    margin-top: 20px;
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 17px;
+    color: var(--text); text-align: center; max-width: 760px; margin-left: auto; margin-right: auto;
+    line-height: 1.4;
+  }
+  .radix-quote .h { color: var(--violet-2); }
+  .radix-source {
+    text-align: center; margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.18em; color: var(--dim); text-transform: uppercase;
+  }
+  .radix-source a { color: var(--violet-2); text-decoration: none; border-bottom: 1px dotted rgba(167,139,250,0.4); }
+
+  /* ============ COLOR — Radix 12-step + OKLCH compare ============ */
+  .color-grid {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 32px;
+    display: grid; grid-template-columns: 1fr; gap: 24px;
+  }
+  .swatch-row {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px;
+    border-radius: 10px; overflow: hidden;
+  }
+  .swatch {
+    aspect-ratio: 1; position: relative;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
+  }
+  .swatch span {
+    background: rgba(0,0,0,0.45); color: #fff; padding: 2px 5px; border-radius: 4px;
+    backdrop-filter: blur(2px);
+  }
+  .swatch.tone-2 span { color: #fff; }
+  .swatch.tone-8 span, .swatch.tone-9 span, .swatch.tone-10 span, .swatch.tone-11 span, .swatch.tone-12 span {
+    background: rgba(0,0,0,0.7); color: #fff;
+  }
+  .color-info {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 720px) { .color-info { grid-template-columns: 1fr; } }
+  .ci-card {
+    background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .ci-card .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; color: var(--teal-2); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .ci-card h4 { font-size: 16px; font-weight: 800; letter-spacing: -0.014em; color: var(--text); margin-bottom: 8px; }
+  .ci-card p {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13.5px;
+    color: var(--muted); line-height: 1.55;
+  }
+  .ci-card .ramp {
+    margin-top: 12px; display: flex; height: 18px; border-radius: 4px; overflow: hidden;
+  }
+  .ci-card .ramp .s { flex: 1; }
+  .ci-card .ramp.hsl .s:nth-child(1) { background: hsl(220, 70%, 95%); }
+  .ci-card .ramp.hsl .s:nth-child(2) { background: hsl(220, 70%, 85%); }
+  .ci-card .ramp.hsl .s:nth-child(3) { background: hsl(220, 70%, 75%); }
+  .ci-card .ramp.hsl .s:nth-child(4) { background: hsl(220, 70%, 65%); }
+  .ci-card .ramp.hsl .s:nth-child(5) { background: hsl(220, 70%, 55%); }
+  .ci-card .ramp.hsl .s:nth-child(6) { background: hsl(220, 70%, 45%); }
+  .ci-card .ramp.hsl .s:nth-child(7) { background: hsl(220, 70%, 35%); }
+  .ci-card .ramp.oklch .s:nth-child(1) { background: oklch(0.95 0.05 240); }
+  .ci-card .ramp.oklch .s:nth-child(2) { background: oklch(0.85 0.10 240); }
+  .ci-card .ramp.oklch .s:nth-child(3) { background: oklch(0.75 0.13 240); }
+  .ci-card .ramp.oklch .s:nth-child(4) { background: oklch(0.65 0.15 240); }
+  .ci-card .ramp.oklch .s:nth-child(5) { background: oklch(0.55 0.17 240); }
+  .ci-card .ramp.oklch .s:nth-child(6) { background: oklch(0.45 0.15 240); }
+  .ci-card .ramp.oklch .s:nth-child(7) { background: oklch(0.35 0.12 240); }
+
+  /* ============ GRID + TYPE ============ */
+  .grid-type-split {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 880px) { .grid-type-split { grid-template-columns: 1fr; } }
+  .gt-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 28px;
+  }
+  .gt-card .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; color: var(--orange-2); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .gt-card h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.018em; line-height: 1.25; margin-bottom: 8px; }
+  .gt-card h3 em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600; color: var(--orange-2); }
+  .gt-card p {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px;
+    color: var(--muted); line-height: 1.55; margin-bottom: 16px;
+  }
+
+  /* 8pt grid demo */
+  .grid-8 {
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 10px;
+    padding: 16px; position: relative; min-height: 200px;
+    background-image:
+      linear-gradient(rgba(255,176,136,0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,176,136,0.10) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+  .grid-8 .row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .grid-8 .box {
+    background: rgba(255,140,90,0.18); border: 1px solid rgba(255,140,90,0.45);
+    border-radius: 4px;
+  }
+  .grid-8 .box.b8 { width: 8px; height: 8px; }
+  .grid-8 .box.b16 { width: 16px; height: 16px; }
+  .grid-8 .box.b24 { width: 24px; height: 24px; }
+  .grid-8 .box.b32 { width: 32px; height: 32px; }
+  .grid-8 .box.b48 { width: 48px; height: 48px; }
+  .grid-8 .box.b64 { width: 64px; height: 64px; }
+  .grid-8 .label-mini {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--orange-2);
+    letter-spacing: 0.10em; text-transform: uppercase;
+  }
+  .grid-8 .scale-row {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .grid-8 .scale-row span { color: var(--orange-2); font-weight: 800; }
+
+  /* Type modular scale */
+  .type-ladder { padding: 6px 0; }
+  .type-ladder .step {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+  }
+  .type-ladder .step:last-child { border-bottom: none; }
+  .type-ladder .step .px {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--dim);
+    width: 42px; flex-shrink: 0; letter-spacing: 0.04em;
+  }
+  .type-ladder .step .lab {
+    flex: 1; font-weight: 800; color: var(--text); letter-spacing: -0.012em;
+  }
+  .type-ladder .step.s1 .lab { font-size: 40px; line-height: 1.1; }
+  .type-ladder .step.s2 .lab { font-size: 32px; line-height: 1.1; }
+  .type-ladder .step.s3 .lab { font-size: 24px; line-height: 1.2; }
+  .type-ladder .step.s4 .lab { font-size: 19px; line-height: 1.3; }
+  .type-ladder .step.s5 .lab { font-size: 16px; line-height: 1.4; font-weight: 600; }
+  .type-ladder .step.s6 .lab { font-size: 14px; line-height: 1.5; font-weight: 500; color: var(--muted); }
+  .type-ladder .note {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--orange-2);
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+
+  /* ============ CANONICAL SYSTEMS — gallery ============ */
+  .sys-gallery {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    max-width: 1080px; margin: 0 auto;
+  }
+  @media (max-width: 880px) { .sys-gallery { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 540px) { .sys-gallery { grid-template-columns: 1fr; } }
+  .ds-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: 24px 22px;
+    display: flex; flex-direction: column; gap: 12px;
+    position: relative; overflow: hidden;
+  }
+  .ds-card .swatch-strip {
+    height: 28px; border-radius: 6px; overflow: hidden;
+    display: flex;
+  }
+  .ds-card .swatch-strip .c { flex: 1; }
+  .ds-card .name { font-size: 17px; font-weight: 800; letter-spacing: -0.014em; color: var(--text); }
+  .ds-card .name em {
+    display: block;
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500;
+    color: var(--accent); font-size: 12.5px; margin-top: 2px; letter-spacing: 0.02em;
+  }
+  .ds-card .desc {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .ds-card .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+  .ds-card .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase; color: var(--accent);
+    padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 100px;
+  }
+  .ds-card.geist { --accent: #f4f4f5; }
+  .ds-card.primer { --accent: #93C5FD; }
+  .ds-card.carbon { --accent: #C4B5FD; }
+  .ds-card.material { --accent: #6EE7B7; }
+  .ds-card.hig { --accent: #FCD34D; }
+  .ds-card.atlassian { --accent: #5EEAD4; }
+
+  /* swatch strip colors */
+  .strip-geist .c:nth-child(1){background:#000;} .strip-geist .c:nth-child(2){background:#1f1f1f;} .strip-geist .c:nth-child(3){background:#444;} .strip-geist .c:nth-child(4){background:#999;} .strip-geist .c:nth-child(5){background:#fff;}
+  .strip-primer .c:nth-child(1){background:#0969da;} .strip-primer .c:nth-child(2){background:#1f883d;} .strip-primer .c:nth-child(3){background:#9a6700;} .strip-primer .c:nth-child(4){background:#cf222e;} .strip-primer .c:nth-child(5){background:#8250df;}
+  .strip-carbon .c:nth-child(1){background:#0f62fe;} .strip-carbon .c:nth-child(2){background:#161616;} .strip-carbon .c:nth-child(3){background:#393939;} .strip-carbon .c:nth-child(4){background:#525252;} .strip-carbon .c:nth-child(5){background:#f4f4f4;}
+  .strip-material .c:nth-child(1){background:#6750a4;} .strip-material .c:nth-child(2){background:#625b71;} .strip-material .c:nth-child(3){background:#7d5260;} .strip-material .c:nth-child(4){background:#e7e0ec;} .strip-material .c:nth-child(5){background:#1c1b1f;}
+  .strip-hig .c:nth-child(1){background:#007aff;} .strip-hig .c:nth-child(2){background:#34c759;} .strip-hig .c:nth-child(3){background:#ff9500;} .strip-hig .c:nth-child(4){background:#ff3b30;} .strip-hig .c:nth-child(5){background:#5856d6;}
+  .strip-atlassian .c:nth-child(1){background:#0052cc;} .strip-atlassian .c:nth-child(2){background:#36b37e;} .strip-atlassian .c:nth-child(3){background:#ffab00;} .strip-atlassian .c:nth-child(4){background:#ff5630;} .strip-atlassian .c:nth-child(5){background:#6554c0;}
+
+  /* ============ MOTION + THEMING ============ */
+  .motion-theme-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  @media (max-width: 880px) { .motion-theme-grid { grid-template-columns: 1fr; } }
+  .mt-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 28px;
+  }
+  .mt-card .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; color: var(--amber-2); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .mt-card h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.018em; line-height: 1.25; margin-bottom: 8px; }
+  .mt-card h3 em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600; color: var(--amber-2); }
+  .mt-card p {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13.5px;
+    color: var(--muted); line-height: 1.55; margin-bottom: 14px;
+  }
+
+  /* Motion easing curves */
+  .easing-stage {
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 10px;
+    padding: 18px; position: relative;
+  }
+  .easing-stage svg { width: 100%; height: auto; display: block; }
+  .easing-list {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+  }
+  .easing-list .e {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  }
+  .easing-list .e .sw { width: 14px; height: 14px; border-radius: 4px; }
+  .easing-list .e .nm { color: var(--text); font-weight: 700; }
+  .easing-list .e .ms { color: var(--dim); margin-left: auto; }
+
+  /* Theme toggle preview */
+  .theme-preview {
+    background: #0a0c14; border: 1px solid var(--border-2); border-radius: 10px;
+    padding: 18px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .theme-mini {
+    border-radius: 8px; padding: 14px; min-height: 130px;
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative; overflow: hidden;
+  }
+  .theme-mini.light {
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+    color: #0f172a;
+  }
+  .theme-mini.dark {
+    background: linear-gradient(180deg, #0f172a, #020617);
+    color: #f1f5f9;
+  }
+  .theme-mini .hd { font-size: 13px; font-weight: 800; letter-spacing: -0.012em; }
+  .theme-mini .bd { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 11.5px; opacity: 0.75; line-height: 1.4; }
+  .theme-mini .acc {
+    align-self: flex-start; padding: 6px 12px; border-radius: 6px;
+    font-size: 10.5px; font-weight: 800;
+  }
+  .theme-mini.light .acc { background: #0f172a; color: #fff; }
+  .theme-mini.dark .acc { background: #5EEAD4; color: #052e26; }
+  .theme-mini .tag {
+    position: absolute; top: 8px; right: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 100px;
+    background: rgba(0,0,0,0.18);
+  }
+  .theme-mini.light .tag { background: rgba(15,23,42,0.10); color: #475569; }
+  .theme-mini.dark .tag { background: rgba(94,234,212,0.18); color: #5EEAD4; }
+
+  /* ============ STACK — layered architecture ============ */
+  .stack-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 22px;
+    padding: 36px 32px;
+  }
+  .stack-pyramid {
+    display: flex; flex-direction: column; gap: 6px; max-width: 720px; margin: 0 auto;
+  }
+  .stack-layer {
+    padding: 14px 22px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .stack-layer .left {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .stack-layer .ic {
+    width: 30px; height: 30px; padding: 4px; border-radius: 7px; background: rgba(255,255,255,0.08);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .stack-layer .ic img { width: 100%; height: 100%; object-fit: contain; }
+  .stack-layer .ic.mono {
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #000));
+    color: #052e26; font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 13px;
+  }
+  .stack-layer .nm { font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: -0.012em; }
+  .stack-layer .nm em {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500;
+    color: var(--muted); margin-left: 8px; font-size: 12px;
+  }
+  .stack-layer .lab {
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em;
+    color: var(--accent); text-transform: uppercase;
+  }
+  .stack-layer.l-app { --accent: var(--mint-2); background: linear-gradient(90deg, rgba(110,231,183,0.12), rgba(110,231,183,0.03)); border-color: rgba(110,231,183,0.30); }
+  .stack-layer.l-ui { --accent: #f4f4f5; background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border-color: rgba(255,255,255,0.20); }
+  .stack-layer.l-css { --accent: var(--sky-2); background: linear-gradient(90deg, rgba(147,197,253,0.12), rgba(147,197,253,0.03)); border-color: rgba(147,197,253,0.30); }
+  .stack-layer.l-prim { --accent: var(--violet-2); background: linear-gradient(90deg, rgba(196,181,253,0.12), rgba(196,181,253,0.03)); border-color: rgba(196,181,253,0.30); }
+  .stack-layer.l-mo { --accent: var(--teal-2); background: linear-gradient(90deg, rgba(94,234,212,0.12), rgba(94,234,212,0.03)); border-color: rgba(94,234,212,0.30); }
+  .stack-layer.l-icn { --accent: var(--pink-2); background: linear-gradient(90deg, rgba(249,168,212,0.12), rgba(249,168,212,0.03)); border-color: rgba(249,168,212,0.30); }
+  .stack-layer.l-thm { --accent: var(--amber-2); background: linear-gradient(90deg, rgba(252,211,77,0.12), rgba(252,211,77,0.03)); border-color: rgba(252,211,77,0.30); }
+
+  /* ============ OUTRO ============ */
+  .outro {
+    text-align: center;
+    background: linear-gradient(180deg, rgba(45,212,191,0.06), transparent);
+    border: 1px solid rgba(45,212,191,0.25); border-radius: 22px;
+    padding: 60px 36px;
+  }
+  .outro h2 {
+    font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; letter-spacing: -0.030em;
+    line-height: 1.1; margin-bottom: 14px;
+  }
+  .outro h2 em { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 600; color: var(--teal-2); }
+  .outro p {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 18px;
+    color: var(--muted); max-width: 640px; margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <div class="left">
+      <span class="badge">Power Design · Web</span>
+      <span class="title">Beyond HTML <em>· the modern design system</em></span>
+    </div>
+    <div class="right">
+      <a href="#tokens">Tokens</a>
+      <a href="#shadcn">shadcn</a>
+      <a href="#tailwind">Tailwind</a>
+      <a href="#radix">Radix</a>
+      <a href="#color">Color</a>
+      <a href="#grid">Grid</a>
+      <a href="#systems">Systems</a>
+      <a href="#stack">Stack</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ HERO ============ -->
+<section id="hero" class="hero">
+  <div class="eyebrow"><span class="line-l"></span>Power Design · Web · beyond HTML<span class="line-r"></span></div>
+  <h1>
+    <span class="line-main">
+      <span class="beyond">Beyond</span>
+      <span>HTML,</span>
+      <span>into</span>
+      <span><span class="html">the system</span>.</span>
+    </span>
+    <span class="subline">A modern website isn't a file — it's a system. Tokens, primitives, components, motion, theming. Each layer earns its place. Here's the canonical stack, the people who built it, and how the pieces actually fit.</span>
+  </h1>
+  <div class="hero-brands">
+    <span class="chip c-tailwind"><span class="lmark" style="background:#0ea5e9; padding: 6px;"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/></svg></span>Tailwind v4</span>
+    <span class="chip c-shadcn"><span class="lmark" style="background:#000;"><svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><line x1="208" y1="128" x2="128" y2="208" stroke="#fff" stroke-width="32" stroke-linecap="round"/><line x1="192" y1="40" x2="40" y2="192" stroke="#fff" stroke-width="32" stroke-linecap="round"/></svg></span>shadcn/ui</span>
+    <span class="chip c-radix"><span class="lmark" style="background:#8884ff;"><svg viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M12 25C7.58 25 4 21.42 4 17V0h8a8 8 0 010 16V0a8 8 0 100 16h7v9h-7z"/></svg></span>Radix UI</span>
+    <span class="chip c-vercel"><span class="lmark"><img src="brand-kit/logos/vercel.svg" alt=""></span>Vercel Geist</span>
+    <span class="chip c-figma"><span class="lmark"><img src="brand-kit/logos/figma.svg" alt=""></span>Tokens Studio</span>
+    <span class="chip c-motion"><span class="lmark" style="background:linear-gradient(135deg,#2DD4BF,#A78BFA); color:#fff; font-weight:900; font-family:JetBrains Mono,monospace; font-size:14px;">M</span>Motion</span>
+  </div>
+</section>
+
+<div class="connector c-1"><span class="travel"></span></div>
+
+<!-- ============ § 01 TOKENS ============ -->
+<section id="tokens" class="stage s-tokens">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Tokens · 01</span>
+    <h2 class="section-h">The <em>atoms</em> of design.</h2>
+    <p class="section-sub">A design token is a named entity that stores a single design decision — a color, a spacing value, a radius. Author once in JSON, transform to every platform. Salesforce coined the term in 2016. The W3C ratified the spec in 2025.</p>
+  </div>
+
+  <div class="token-cascade">
+    <div class="token-cascade-grid">
+      <div class="tc-card l-json">
+        <div class="label">01 · Author</div>
+        <div class="ttl">One JSON file</div>
+        <div class="tc-code">
+{<br>
+&nbsp;&nbsp;<span class="c">"color.accent"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c">"$value"</span>: <span class="s">"#2DD4BF"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c">"$type"</span>: <span class="s">"color"</span><br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+        <div class="sub">DTCG-compliant tokens — portable across Figma, code, iOS, Android.</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="tc-card l-css">
+        <div class="label">02 · Transform</div>
+        <div class="ttl">CSS custom properties</div>
+        <div class="tc-code">
+<span class="k">:root</span> {<br>
+&nbsp;&nbsp;<span class="c">--color-accent</span>: <span class="s">#2DD4BF</span>;<br>
+&nbsp;&nbsp;<span class="c">--space-4</span>: <span class="n">16px</span>;<br>
+&nbsp;&nbsp;<span class="c">--radius-md</span>: <span class="n">8px</span>;<br>
+}
+        </div>
+        <div class="sub">Style Dictionary or Tokens Studio emits CSS, JS, iOS, Android — same source.</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="tc-card l-comp">
+        <div class="label">03 · Apply</div>
+        <div class="ttl">Every component inherits</div>
+        <div class="tc-code">
+<span class="k">.btn-primary</span> {<br>
+&nbsp;&nbsp;background: <span class="k">var</span>(<span class="c">--color-accent</span>);<br>
+&nbsp;&nbsp;padding: <span class="k">var</span>(<span class="c">--space-4</span>);<br>
+}
+        </div>
+        <button class="tc-button">Live button →</button>
+      </div>
+    </div>
+
+    <div class="token-origin">
+      <div class="to-card">
+        <div class="yr">2016</div>
+        <div class="body"><strong>Salesforce coins the term.</strong> Jina Anne &amp; Jon Levine introduce design tokens in the Lightning Design System — visual decisions abstracted from any single platform. <a href="https://www.designtokens.org/faq/" target="_blank" rel="noopener">designtokens.org →</a></div>
+      </div>
+      <div class="to-card">
+        <div class="yr">2025</div>
+        <div class="body"><strong>W3C ratifies the spec.</strong> The Design Tokens Community Group publishes v1 — JSON interchange format with <code>$value</code>, <code>$type</code>, <code>$description</code>. <a href="https://www.w3.org/community/design-tokens/" target="_blank" rel="noopener">W3C DTCG →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-2"><span class="travel"></span></div>
+
+<!-- ============ § 02 SHADCN ============ -->
+<section id="shadcn" class="stage s-shadcn">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>shadcn/ui · 02</span>
+    <h2 class="section-h">Not a library. <em>Your library.</em></h2>
+    <p class="section-sub">In 2023, shadcn (Hunter Reaves) shipped something stranger than a component library — a CLI that pastes the actual source code into your repo. You own it. You can fork it. There's no version to upgrade against. It killed the npm-component category.</p>
+  </div>
+
+  <div class="shadcn-split">
+    <div class="shadcn-card bad">
+      <div class="head"><span class="lab">The old way</span><span class="tag">npm i mui</span></div>
+      <h3>Component <em>library</em></h3>
+      <div class="body">Install an opaque dependency. Customize via theme overrides, prop drilling, !important hacks. Locked to the maintainer's pace and design choices.</div>
+      <div class="terminal">
+        <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="lab">~/project</span></div>
+        <div class="body-c">
+<span class="p">$</span> npm i @mui/material<br>
+<span class="c"># 247 packages installed</span><br>
+<span class="p">$</span> npm ls<br>
+<span class="c"># node_modules: 18,432 files</span>
+        </div>
+      </div>
+      <ul>
+        <li><span class="b"></span>Style overrides fight the library</li>
+        <li><span class="b"></span>Major versions break your UI</li>
+        <li><span class="b"></span>Can't fork — it's a dependency</li>
+      </ul>
+    </div>
+    <div class="shadcn-card good">
+      <div class="head"><span class="lab">The new way</span><span class="tag">shadcn add</span></div>
+      <h3>Copy-paste <em>source</em></h3>
+      <div class="body">A CLI writes the component file into <code>components/ui/</code>. Source code lives in your repo. Edit it freely. No npm dependency. No upgrade path. You own it.</div>
+      <div class="terminal">
+        <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="lab">~/project</span></div>
+        <div class="body-c">
+<span class="p">$</span> npx shadcn@latest add button<br>
+<span class="c"># ✓ Created components/ui/button.tsx</span><br>
+<span class="p">$</span> cat components/ui/button.tsx<br>
+<span class="k">export const</span> Button = ...
+        </div>
+      </div>
+      <ul>
+        <li><span class="b"></span>The code is yours — edit it</li>
+        <li><span class="b"></span>No version drift, no breaking changes</li>
+        <li><span class="b"></span>Built on Radix + Tailwind underneath</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="radix-quote" style="margin-top: 30px;">
+    "This is <span style="color: var(--teal-2);">not a component library</span>.<br/>It is how you build your <span style="color: var(--teal-2);">component library</span>."
+  </div>
+  <div class="radix-source">— <a href="https://ui.shadcn.com/" target="_blank" rel="noopener">ui.shadcn.com · the docs, opening line</a></div>
+</section>
+
+<div class="connector c-3"><span class="travel"></span></div>
+
+<!-- ============ § 03 TAILWIND ============ -->
+<section id="tailwind" class="stage s-tailwind">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Tailwind v4 · 03</span>
+    <h2 class="section-h">Utility-first, <em>token-fluent</em>.</h2>
+    <p class="section-sub">Adam Wathan released Tailwind on Halloween 2017. Utility-first replaced semantic CSS because semantic class names were the reason CSS was hard to maintain. v4 went CSS-first, OKLCH-default, and turned the config file into part of your design system.</p>
+  </div>
+
+  <div class="tw-wrap">
+    <div class="tw-info">
+      <h3>The <em>config</em> is the token file.</h3>
+      <p>Tailwind v4 (January 2025) moved configuration into CSS itself — <code>@theme</code> blocks expose every token as a CSS variable, no JavaScript build step required.</p>
+      <p>Each utility name <em>is</em> a token reference. <code>bg-sky-500</code> isn't a style — it's a binding to <code>--color-sky-500</code> in the theme.</p>
+      <ul>
+        <li><span class="b"></span>CSS-first config · <code>@theme {}</code> replaces tailwind.config.js</li>
+        <li><span class="b"></span>OKLCH palette by default — wider P3 gamut</li>
+        <li><span class="b"></span>Every token = a CSS variable, runtime-themable</li>
+        <li><span class="b"></span>50× faster builds via Lightning CSS</li>
+      </ul>
+    </div>
+    <div class="tw-stage">
+      <div class="source">
+<span class="c">/* @theme exposes tokens as CSS vars */</span><br>
+<span class="k">@theme</span> {<br>
+&nbsp;&nbsp;<span class="a">--color-accent</span>: <span class="v">oklch(0.78 0.13 195)</span>;<br>
+&nbsp;&nbsp;<span class="a">--radius-md</span>: <span class="v">0.5rem</span>;<br>
+}<br><br>
+<span class="c">&lt;!-- utility = token reference --&gt;</span><br>
+<span class="k">&lt;button</span> <span class="a">class</span>=<span class="s">"bg-accent rounded-md px-4 py-2"</span><span class="k">&gt;</span><br>
+&nbsp;&nbsp;Save<br>
+<span class="k">&lt;/button&gt;</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="render"><button class="btn">Save</button></div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-4"><span class="travel"></span></div>
+
+<!-- ============ § 04 RADIX ============ -->
+<section id="radix" class="stage s-radix">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Radix · 04</span>
+    <h2 class="section-h">The <em>accessibility</em> backbone.</h2>
+    <p class="section-sub">Beneath shadcn, beneath your styled buttons, beneath the screenshot in the design tool — there's Radix. Unstyled, accessible React primitives. WAI-ARIA done right. Keyboard navigation, focus management, screen-reader semantics — all handled, no markup baked in.</p>
+  </div>
+
+  <div class="radix-wrap">
+    <div class="radix-stack">
+      <div class="radix-layer l-style">
+        <div class="name">Your styles <em>Tailwind utilities, CSS vars, brand tokens</em></div>
+        <span class="lab">↑ visible</span>
+      </div>
+      <div class="radix-layer l-behavior">
+        <div class="name">Component behavior <em>state, events, animations</em></div>
+        <span class="lab">middle</span>
+      </div>
+      <div class="radix-layer l-a11y">
+        <div class="name">Radix primitives <em>ARIA roles · focus · keyboard · semantics</em></div>
+        <span class="lab">↓ structural</span>
+      </div>
+    </div>
+
+    <div class="radix-quote">
+      Radix gives you <span class="h">the hardest 30%</span> of any component<br/>
+      <span style="color: var(--muted); font-style: italic;">— so you only design the visible part.</span>
+    </div>
+    <div class="radix-source">Maintained by <a href="https://www.radix-ui.com/primitives" target="_blank" rel="noopener">WorkOS · radix-ui.com</a> · Adobe ships an equivalent as React Aria hooks.</div>
+  </div>
+</section>
+
+<div class="connector c-5"><span class="travel"></span></div>
+
+<!-- ============ § 05 COLOR ============ -->
+<section id="color" class="stage s-color">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Color · 05</span>
+    <h2 class="section-h">12 steps. <em>OKLCH</em>. Auto dark mode.</h2>
+    <p class="section-sub">A modern color scale has 12 steps — each step has a job. 1-2 are app backgrounds. 9 is the solid action color. 11-12 are text. Flip a class to <code>dark</code> and the whole scale swaps in place. OKLCH replaced HSL because adding 10% lightness now actually looks 10% lighter, across every hue.</p>
+  </div>
+
+  <div class="color-grid">
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 800; letter-spacing: 0.18em; color: var(--teal-2); text-transform: uppercase; margin-bottom: 10px;">Radix Slate · 12-step scale</div>
+      <div class="swatch-row">
+        <div class="swatch tone-2" style="background:#0F172A; color:#fff;"><span>01</span></div>
+        <div class="swatch tone-2" style="background:#1E293B; color:#fff;"><span>02</span></div>
+        <div class="swatch tone-2" style="background:#334155; color:#fff;"><span>03</span></div>
+        <div class="swatch tone-2" style="background:#475569; color:#fff;"><span>04</span></div>
+        <div class="swatch" style="background:#64748B;"><span>05</span></div>
+        <div class="swatch" style="background:#94A3B8;"><span>06</span></div>
+        <div class="swatch" style="background:#CBD5E1;"><span>07</span></div>
+        <div class="swatch tone-8" style="background:#E2E8F0;"><span>08</span></div>
+        <div class="swatch tone-9" style="background:#F1F5F9;"><span>09</span></div>
+        <div class="swatch tone-10" style="background:#F8FAFC;"><span>10</span></div>
+        <div class="swatch tone-11" style="background:#FAFCFE;"><span>11</span></div>
+        <div class="swatch tone-12" style="background:#FFFFFF;"><span>12</span></div>
+      </div>
+      <div style="margin-top: 10px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13px; color: var(--muted); line-height: 1.5;">Each step has a job — backgrounds, borders, interactive states, text. The 12-step model means you stop inventing colors mid-design.</div>
+    </div>
+
+    <div class="color-info">
+      <div class="ci-card">
+        <div class="label">HSL · the legacy</div>
+        <h4>Uneven steps</h4>
+        <p>Equal lightness deltas in HSL produce wildly different perceived brightness across hues. Yellow at L=50% looks lighter than blue at L=50%.</p>
+        <div class="ramp hsl">
+          <div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div>
+        </div>
+      </div>
+      <div class="ci-card">
+        <div class="label">OKLCH · the upgrade</div>
+        <h4>Perceptually even</h4>
+        <p>Built on Björn Ottosson's Oklab (2020). Lightness is uniform across hues. Wider P3 gamut. Tailwind v4 default, Vercel Geist default.</p>
+        <div class="ramp oklch">
+          <div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div><div class="s"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-6"><span class="travel"></span></div>
+
+<!-- ============ § 06 GRID + TYPE ============ -->
+<section id="grid" class="stage s-grid">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Grid + type · 06</span>
+    <h2 class="section-h">8 points. <em>One ratio.</em></h2>
+    <p class="section-sub">Two rules that quietly cover most of "this looks designed." Every spacing value is a multiple of 8. Every type size derives from one modular ratio. No 13px. No 27px. No ad-hoc.</p>
+  </div>
+
+  <div class="grid-type-split">
+    <div class="gt-card">
+      <div class="label">Bryn Jackson · 2015</div>
+      <h3>The <em>8-point grid</em></h3>
+      <p>Spacing values from a single scale: 8 · 16 · 24 · 32 · 48 · 64 · 96. Divides cleanly across 1x, 1.5x, 2x, 3x density screens. Material's 8dp baseline followed.</p>
+      <div class="grid-8">
+        <div class="label-mini" style="margin-bottom: 10px;">Multiples of 8 — pick from this set, never anything else.</div>
+        <div class="row">
+          <div class="box b8"></div>
+          <div class="box b16"></div>
+          <div class="box b24"></div>
+          <div class="box b32"></div>
+          <div class="box b48"></div>
+          <div class="box b64"></div>
+        </div>
+        <div class="scale-row"><span>8</span> · <span>16</span> · <span>24</span> · <span>32</span> · <span>48</span> · <span>64</span> · <span>96</span> · <span>128</span></div>
+      </div>
+    </div>
+
+    <div class="gt-card" style="--orange-2: #FCD34D;">
+      <div class="label" style="color: var(--amber-2);">Modular scale</div>
+      <h3 style="--orange-2: var(--amber-2);">One <em>ratio</em>, all sizes</h3>
+      <p>Base 16px times a single ratio — Major Third (1.25), Perfect Fourth (1.333), Golden Ratio (1.618). Every heading on the page derives from one number. Tailwind defaults to 1.25.</p>
+      <div class="type-ladder">
+        <div class="step s1"><span class="px">40px</span><span class="lab">Display</span></div>
+        <div class="step s2"><span class="px">32px</span><span class="lab">Heading 1</span></div>
+        <div class="step s3"><span class="px">24px</span><span class="lab">Heading 2</span></div>
+        <div class="step s4"><span class="px">19px</span><span class="lab">Heading 3</span></div>
+        <div class="step s5"><span class="px">16px</span><span class="lab">Body</span></div>
+        <div class="step s6"><span class="px">14px</span><span class="lab">Caption · supporting copy</span></div>
+        <div class="note">Ratio 1.25 · base 16px</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-7"><span class="travel"></span></div>
+
+<!-- ============ § 07 CANONICAL SYSTEMS ============ -->
+<section id="systems" class="stage s-systems">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Canonical · 07</span>
+    <h2 class="section-h">Six <em>systems</em> to study.</h2>
+    <p class="section-sub">If you're going to build one, read the best ones first. Each of these is a public, documented, code-backed design system — palette, type, components, motion, principles — that ships at scale every day.</p>
+  </div>
+
+  <div class="sys-gallery">
+    <div class="ds-card geist">
+      <div class="swatch-strip strip-geist"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">Vercel Geist<em>vercel.com/geist</em></div>
+      <div class="desc">High-contrast monochrome, sharp radii, Geist Sans/Mono. The cleanest modern token system to copy.</div>
+      <div class="tags"><span class="tag">OKLCH</span><span class="tag">Geist Sans</span><span class="tag">tokens</span></div>
+    </div>
+    <div class="ds-card primer">
+      <div class="swatch-strip strip-primer"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">GitHub Primer<em>primer.style</em></div>
+      <div class="desc">Powers GitHub itself. CSS, React, ViewComponents flavors. Decade of production hardening.</div>
+      <div class="tags"><span class="tag">CSS + React</span><span class="tag">a11y-first</span></div>
+    </div>
+    <div class="ds-card carbon">
+      <div class="swatch-strip strip-carbon"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">IBM Carbon<em>carbondesignsystem.com</em></div>
+      <div class="desc">Enterprise-grade. Documented to the millimeter. Backed by the IBM Design Language.</div>
+      <div class="tags"><span class="tag">IBM Plex</span><span class="tag">tokens</span></div>
+    </div>
+    <div class="ds-card material">
+      <div class="swatch-strip strip-material"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">Material 3<em>m3.material.io</em></div>
+      <div class="desc">Google's third revision. Dynamic color, full motion token system, expressive theming.</div>
+      <div class="tags"><span class="tag">Dynamic color</span><span class="tag">motion</span></div>
+    </div>
+    <div class="ds-card hig">
+      <div class="swatch-strip strip-hig"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">Apple HIG<em>developer.apple.com/design</em></div>
+      <div class="desc">Semantic color tiers (label / secondaryLabel), SF Symbols, native motion. Less to copy, more to study.</div>
+      <div class="tags"><span class="tag">SF Symbols</span><span class="tag">semantic</span></div>
+    </div>
+    <div class="ds-card atlassian">
+      <div class="swatch-strip strip-atlassian"><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div></div>
+      <div class="name">Atlassian<em>atlassian.design</em></div>
+      <div class="desc">Full design language — voice, illustration, motion, components. End-to-end documented at scale.</div>
+      <div class="tags"><span class="tag">end-to-end</span><span class="tag">voice</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-8"><span class="travel"></span></div>
+
+<!-- ============ § 08 MOTION + THEMING ============ -->
+<section id="motion" class="stage s-motion">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>Motion + theming · 08</span>
+    <h2 class="section-h">The <em>final</em> layer.</h2>
+    <p class="section-sub">Motion gives a system its personality. Theming gives it adaptability. Two layers that turn a static page into something that feels alive — and respects the visitor's device.</p>
+  </div>
+
+  <div class="motion-theme-grid">
+    <div class="mt-card">
+      <div class="label">Motion · Matt Perry</div>
+      <h3>Curves with <em>meaning</em></h3>
+      <p>Motion (formerly Framer Motion) standardized declarative animation in React. Material 3 codified the four canonical curves — each one fits a different intent.</p>
+      <div class="easing-stage">
+        <svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">
+          <!-- baseline -->
+          <line x1="10" y1="78" x2="270" y2="78" stroke="#2e3244" stroke-width="1"/>
+          <line x1="10" y1="12" x2="10" y2="78" stroke="#2e3244" stroke-width="1"/>
+          <!-- standard -->
+          <path d="M10,78 C70,78 130,12 270,12" stroke="#FCD34D" stroke-width="2" fill="none"/>
+          <!-- emphasized -->
+          <path d="M10,78 C30,78 50,12 270,12" stroke="#5EEAD4" stroke-width="2" fill="none" opacity="0.85"/>
+          <!-- acceleration -->
+          <path d="M10,78 C200,78 230,12 270,12" stroke="#C4B5FD" stroke-width="2" fill="none" opacity="0.85"/>
+          <!-- deceleration -->
+          <path d="M10,78 C40,12 100,12 270,12" stroke="#F9A8D4" stroke-width="2" fill="none" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="easing-list">
+        <div class="e"><span class="sw" style="background:#FCD34D;"></span><span class="nm">standard</span><span class="ms">200ms</span></div>
+        <div class="e"><span class="sw" style="background:#5EEAD4;"></span><span class="nm">emphasized</span><span class="ms">500ms</span></div>
+        <div class="e"><span class="sw" style="background:#C4B5FD;"></span><span class="nm">acceleration · enter</span><span class="ms">150ms</span></div>
+        <div class="e"><span class="sw" style="background:#F9A8D4;"></span><span class="nm">deceleration · exit</span><span class="ms">200ms</span></div>
+      </div>
+    </div>
+
+    <div class="mt-card">
+      <div class="label">Theming · next-themes</div>
+      <h3>One toggle, <em>two modes</em></h3>
+      <p>The standard pattern: tokens defined for both <code>:root</code> and <code>.dark</code>, swapped by toggling a class on <code>&lt;html&gt;</code>. <a href="https://github.com/pacocoursey/next-themes" style="color: var(--amber-2);" target="_blank" rel="noopener">next-themes</a> handles the SSR flash. <code>prefers-color-scheme</code> picks the default.</p>
+      <div class="theme-preview">
+        <div class="theme-mini light">
+          <span class="tag">Light</span>
+          <div class="hd">Welcome back</div>
+          <div class="bd">Your dashboard, your decisions. Built on the same tokens.</div>
+          <div class="acc">Continue →</div>
+        </div>
+        <div class="theme-mini dark">
+          <span class="tag">Dark</span>
+          <div class="hd">Welcome back</div>
+          <div class="bd">Your dashboard, your decisions. Built on the same tokens.</div>
+          <div class="acc">Continue →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-9"><span class="travel"></span></div>
+
+<!-- ============ § 09 STACK ============ -->
+<section id="stack" class="stage s-stack">
+  <div class="section-head">
+    <span class="section-tag"><span class="dot"></span>The stack · 09</span>
+    <h2 class="section-h">The <em>2026</em> canonical stack.</h2>
+    <p class="section-sub">If you're shipping a marketing site or a product UI today, this is the layered architecture every credible team converges on. Each layer earns its place. Each layer is replaceable. Nothing is sacred — except picking the right one for the layer.</p>
+  </div>
+
+  <div class="stack-wrap">
+    <div class="stack-pyramid">
+      <div class="stack-layer l-app">
+        <div class="left">
+          <span class="ic"><img src="brand-kit/logos/vercel.svg" alt=""></span>
+          <span class="nm">Next.js · App Router<em>framework</em></span>
+        </div>
+        <span class="lab">L7 · framework</span>
+      </div>
+      <div class="stack-layer l-ui">
+        <div class="left">
+          <span class="ic mono">U</span>
+          <span class="nm">shadcn/ui<em>component source you own</em></span>
+        </div>
+        <span class="lab">L6 · components</span>
+      </div>
+      <div class="stack-layer l-css">
+        <div class="left">
+          <span class="ic" style="background:#0ea5e9; padding:5px;"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/></svg></span>
+          <span class="nm">Tailwind v4<em>tokens + utilities, CSS-first</em></span>
+        </div>
+        <span class="lab">L5 · styling</span>
+      </div>
+      <div class="stack-layer l-prim">
+        <div class="left">
+          <span class="ic" style="background:#8884ff; padding:5px;"><svg viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M12 25C7.58 25 4 21.42 4 17V0h8a8 8 0 010 16V0a8 8 0 100 16h7v9h-7z"/></svg></span>
+          <span class="nm">Radix Primitives<em>accessible behavior</em></span>
+        </div>
+        <span class="lab">L4 · primitives</span>
+      </div>
+      <div class="stack-layer l-mo">
+        <div class="left">
+          <span class="ic mono">M</span>
+          <span class="nm">Motion · framer-motion<em>animation</em></span>
+        </div>
+        <span class="lab">L3 · motion</span>
+      </div>
+      <div class="stack-layer l-icn">
+        <div class="left">
+          <span class="ic mono">L</span>
+          <span class="nm">lucide-react<em>icon set, 24×24 grid</em></span>
+        </div>
+        <span class="lab">L2 · icons</span>
+      </div>
+      <div class="stack-layer l-thm">
+        <div class="left">
+          <span class="ic mono">T</span>
+          <span class="nm">next-themes<em>dark / light toggle</em></span>
+        </div>
+        <span class="lab">L1 · theming</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="connector c-9"><span class="travel"></span></div>
+
+<!-- ============ OUTRO ============ -->
+<section class="stage s-outro">
+  <div class="outro">
+    <h2>A page is a file. A site is a <em>system</em>.</h2>
+    <p>Tokens at the bottom. Primitives above them. Components above those. Motion and theming wrap the whole thing. Once you build the layers, you stop building pages — you compose them.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('section.stage').forEach((s) => io.observe(s));
+</script>
+
+</body>
+</html>
