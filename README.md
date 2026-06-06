@@ -4,7 +4,7 @@
 
 ### Beyond HTML, into the system.
 
-**A long-scroll explainer for the modern website design stack — tokens, shadcn, Tailwind, Radix, OKLCH, motion, theming. The sister doc to [Power Design](https://github.com/ItsssssJack/power-design) (for slides).**
+**A long-scroll explainer for the modern website design stack — tokens, shadcn, Tailwind, Radix, OKLCH, motion, theming. The sister doc to [Power Design](https://github.com/RyotaKun/jack-power-design) (for slides).**
 
 </div>
 
@@ -55,7 +55,7 @@ The page is fully static — no build step.
 
 ## Companion repo
 
-- [Power Design](https://github.com/ItsssssJack/power-design) — Claude skill for slides that don't look like AI made them. Brand DNA × 20 codified design principles.
+- [Power Design](https://github.com/RyotaKun/jack-power-design) — Claude skill for slides that don't look like AI made them. Brand DNA × 20 codified design principles.
 
 ---
 
