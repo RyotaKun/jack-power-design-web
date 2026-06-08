@@ -341,6 +341,9 @@
   resizeRipple();
   window.addEventListener('resize', resizeRipple);
 
+  // See PR #2 round 8 R8-4: the ripple loop ran forever even with no ripples.
+  // Start it on the first ripple, stop it when the list drains.
+  var rippleRunning = false;
   rippleArea.addEventListener('click', function(e) {
     var rect = rippleArea.getBoundingClientRect();
     ripples.push({
@@ -349,6 +352,7 @@
       r: 0,
       alpha: 0.5
     });
+    if (!rippleRunning) { rippleRunning = true; drawRipples(); }
   });
 
   function drawRipples() {
@@ -364,9 +368,12 @@
       rctx.lineWidth = 1.5;
       rctx.stroke();
     }
-    requestAnimationFrame(drawRipples);
+    if (ripples.length > 0) {
+      requestAnimationFrame(drawRipples);
+    } else {
+      rippleRunning = false; // idle — no wasted frames
+    }
   }
-  drawRipples();
 })();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;font-size:11px;color:#5a5a5e;text-align:center;z-index:99;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border-top:1px solid #1e1e22;font-family:Outfit,sans-serif">&copy; Created by Jay from <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboLabs</a>. Learn more at <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboNuggets</a></div>

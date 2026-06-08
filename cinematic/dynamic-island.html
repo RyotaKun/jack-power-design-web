@@ -43,7 +43,8 @@
 </style>
 </head>
 <body>
-<div class="island" id="island" onclick="toggleIsland()">
+<!-- See PR #2 round 8 R8-5: island pill keyboard-operable -->
+<div class="island" id="island" role="button" tabindex="0" onclick="toggleIsland()" onkeydown="islandKey(event)">
   <div class="island-dot"></div>
   <div class="island-label">3 notifications</div>
   <div class="island-content">
@@ -77,6 +78,8 @@
 <footer>Cinematic Module — Dynamic Island Nav</footer>
 <script>
 function toggleIsland(){document.getElementById('island').classList.toggle('expanded')}
+// See PR #2 round 8 R8-5: Enter/Space toggles the island for keyboard users.
+function islandKey(e){if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.preventDefault();toggleIsland();}}
 function setIsland(text,color){
   var island=document.getElementById('island');
   island.classList.remove('expanded');

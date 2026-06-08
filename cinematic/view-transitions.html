@@ -321,7 +321,8 @@
   <h2>Dynamic island morph</h2>
   <p>A compact pill expands into a rich info panel. Click it.</p>
 
-  <div class="morph-pill" id="morphPill" onclick="toggleMorph()">
+  <!-- See PR #2 round 8 R8-1/2: morph pill keyboard-operable -->
+  <div class="morph-pill" id="morphPill" role="button" tabindex="0" onclick="toggleMorph()" onkeydown="morphKey(event)">
     <span class="pill-label">3 notifications</span>
     <div class="morph-expanded-content">
       <h4>Recent activity</h4>
@@ -408,8 +409,12 @@ function closeProduct(e, force) {
     } else {
       restore();
     }
-    setTimeout(function() { overlay.classList.remove('open'); }, 300);
-    if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; } // See PR #2 round 5 R5-gKb: return focus to trigger
+    // See PR #2 round 8 R8-3: return focus only AFTER the overlay is actually
+    // closed (was firing immediately while the modal was still visible ~300ms).
+    setTimeout(function() {
+      overlay.classList.remove('open');
+      if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
+    }, 300);
   }
 }
 
@@ -422,6 +427,11 @@ document.addEventListener('keydown', function(e) {
 
 function toggleMorph() {
   document.getElementById('morphPill').classList.toggle('expanded');
+}
+
+// See PR #2 round 8 R8-2: Enter/Space toggles the morph pill for keyboard users.
+function morphKey(e) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); toggleMorph(); }
 }
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;font-size:11px;color:#5a5a5e;text-align:center;z-index:99;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border-top:1px solid #1e1e22;font-family:Outfit,sans-serif">&copy; Created by Jay from <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboLabs</a>. Learn more at <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboNuggets</a></div>
