@@ -68,10 +68,13 @@
 <footer>Cinematic Module — Typewriter Effect</footer>
 <script>
 (function(){
-  // See PR #2 round 5 R5-sweep: bail before starting loops under reduced-motion; show final text statically
+  // See PR #2 round 5 R5-sweep + round 10 R10-3: bail before starting loops under
+  // reduced-motion; show ALL final content statically — including the chat
+  // messages, which default to opacity:0 until .visible is added (were left blank).
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.getElementById('cycler').innerHTML='We build websites.<span class="type-cursor"></span>';
     document.getElementById('codeType').textContent='const site = await claude.build({\n  url: "example.com",\n  theme: "dark",\n  animation: "scroll-frame"\n});\n\nconsole.log(site.url);\n// => https://example.vercel.app';
+    document.querySelectorAll('.chat-msg').forEach(function(m){m.classList.add('visible');});
     return;
   }
   // Cycling headline

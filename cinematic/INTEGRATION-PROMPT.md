@@ -71,6 +71,11 @@ Surgical changes only.
 | 29 | `typewriter.html` | Ambient & Auto | Text types itself |
 | 30 | `gradient-stroke.html` | Ambient & Auto | Animated gradient on outlined text |
 
-## Attribution
+## Attribution & License
 
-Components created by Jay from RoboLabs — <https://robonuggets.com>. MIT licensed.
+Components created by Jay from RoboLabs — <https://robonuggets.com>.
+
+These demos are MIT licensed by their author. The full upstream copyright and MIT
+license text is included alongside this folder in
+[`LICENSE-cinematic-components`](./LICENSE-cinematic-components) (`Copyright (c) 2026
+Jay from RoboLabs`), as MIT requires the notice to travel with the code.

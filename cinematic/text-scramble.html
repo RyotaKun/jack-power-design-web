@@ -190,8 +190,19 @@
 
 <script>
 (function() {
-  // See PR #2 round 5 R5-sweep: bail before starting the loop under reduced-motion
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+  // See PR #2 round 5 R5-sweep + round 10 R10-4: under reduced-motion, skip the
+  // scramble animations but STILL render the final text/values (a bare return
+  // left headlines empty and counters stuck at 0).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('[data-scramble]').forEach(function(el) { el.textContent = el.dataset.scramble; });
+    document.querySelectorAll('[data-scramble-hover]').forEach(function(el) { el.textContent = el.dataset.scrambleHover; });
+    document.querySelectorAll('.scramble-sub').forEach(function(el) { el.classList.add('visible'); });
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      var target = parseFloat(el.dataset.count);
+      el.textContent = (target % 1 !== 0) ? target.toFixed(2) : Math.floor(target).toLocaleString();
+    });
+    return;
+  }
 
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
 
