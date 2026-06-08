@@ -273,18 +273,21 @@
 <section class="products-section">
   <div class="products-label">Click any card to expand</div>
   <div class="products-grid">
-    <div class="product-card" data-product="1" onclick="openProduct(this)">
+    <!-- See PR #2 round 4 R4-3/4/5: cards are activated via onclick but were plain
+         divs — not keyboard-focusable. Added role=button, tabindex=0, and keydown
+         (Enter/Space) so keyboard users can open the overlay. -->
+    <div class="product-card" data-product="1" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
       <div class="product-swatch" style="background: linear-gradient(135deg, #2a2a2e, #404048); --vt-name: swatch-1;"></div>
       <h3>Midnight Matte</h3>
       <div class="price">$129</div>
     </div>
-    <div class="product-card" data-product="2" onclick="openProduct(this)">
+    <div class="product-card" data-product="2" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
       <div class="tag">Popular</div>
       <div class="product-swatch" style="background: linear-gradient(135deg, #e85d3a, #ff8866); --vt-name: swatch-2;"></div>
       <h3>Ember</h3>
       <div class="price">$149</div>
     </div>
-    <div class="product-card" data-product="3" onclick="openProduct(this)">
+    <div class="product-card" data-product="3" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
       <div class="product-swatch" style="background: linear-gradient(135deg, #c8a97e, #e8d5b5); --vt-name: swatch-3;"></div>
       <h3>Desert Sand</h3>
       <div class="price">$129</div>
@@ -341,6 +344,14 @@ var products = {
 var overlay = document.getElementById('overlay');
 var detailImage = document.getElementById('detailImage');
 var activeSwatch = null; // See PR #2 round 3 R3-1..3: the .product-swatch (NOT the card) owns --vt-name + view-transition-name
+
+// See PR #2 round 4 R4-3/4/5: Enter/Space activate the card like a button.
+function cardKey(e, card) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+    e.preventDefault();
+    openProduct(card);
+  }
+}
 
 function openProduct(card) {
   var id = card.dataset.product;

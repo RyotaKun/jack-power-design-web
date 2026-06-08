@@ -240,6 +240,11 @@
 
 <script>
 (function() {
+  // See PR #2 round 4 R4-6: a CSS reset can't stop a JS rAF loop. Bail before
+  // starting the marquee when the user prefers reduced motion (also cuts CPU).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return;
+  }
   // Clone content for seamless loop
   document.querySelectorAll('.marquee-row').forEach(function(row) {
     var content = row.querySelector('.marquee-content');

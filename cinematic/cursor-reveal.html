@@ -348,9 +348,16 @@
   });
 
   // Scroll to change radius
+  // See PR #2 round 4 R4-2: was preventDefault() unconditionally, hijacking
+  // page scroll over the demo. Adapted (not Copilot's Shift-gate, which would
+  // break the scroll-to-resize interaction): only swallow the wheel event when
+  // it actually changes the radius. At the min/max clamp the page scrolls normally.
   spotContainer.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    radius = Math.max(30, Math.min(200, radius - e.deltaY * 0.3));
+    var next = Math.max(30, Math.min(200, radius - e.deltaY * 0.3));
+    if (next !== radius) {
+      e.preventDefault();
+      radius = next;
+    }
   }, { passive: false });
 
   // ─── 3. Vertical Split ───
