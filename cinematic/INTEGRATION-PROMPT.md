@@ -1,13 +1,14 @@
 # Cinematic Components — Designer Integration Prompt
 
-These 30 modules are standalone HTML files (vanilla HTML + CSS + JS, GSAP 3 + ScrollTrigger from CDN). To add one to your own project, paste the prompt below into Claude Code / Cursor / any coding AI, then attach the module's `.html` file.
+These 30 modules are standalone HTML files (vanilla HTML + CSS + JS). Most of the scroll-driven ones load GSAP 3 + ScrollTrigger from a CDN; several others (e.g. `particle-button.html`, `dock-nav.html`, `flip-cards.html`, `gradient-stroke.html`) are pure CSS / vanilla JS with no dependencies. To add one to your own project, paste the prompt below into Claude Code / Cursor / any coding AI, then attach the module's `.html` file.
 
 ## Copy-paste prompt
 
 ```
 I want to add a cinematic UI component to my project. The component is a single
-self-contained HTML file (vanilla HTML + CSS + JS, using GSAP 3 + ScrollTrigger
-from CDN). Source: the "Cinematic Site Modules" library by RoboLabs.
+self-contained HTML file (vanilla HTML + CSS + JS). Some modules also use GSAP 3
++ ScrollTrigger from a CDN; others are pure CSS / vanilla JS with no dependencies.
+Source: the "Cinematic Site Modules" library by RoboLabs.
 
 Here is the component file: [paste/attach the <module>.html, e.g. text-mask.html]
 
@@ -15,11 +16,13 @@ My project stack is: [e.g. Next.js App Router / Vite + React / plain HTML / Astr
 
 Please:
 1. Extract the component's markup, CSS, and JS into the idiomatic form for my stack
-   (e.g. a React component + useEffect for the GSAP init, or a scoped <section> for
+   (e.g. a React component + useEffect for any JS init, or a scoped <section> for
    plain HTML).
-2. Load GSAP + ScrollTrigger the right way for my stack (CDN <script> for static
-   sites; `npm i gsap` + dynamic import for bundled apps — register ScrollTrigger
-   with gsap.registerPlugin(ScrollTrigger)).
+2. First check whether the attached file actually uses GSAP (look for a gsap CDN
+   <script> or gsap.* calls). Only if it does, load GSAP + ScrollTrigger the right
+   way for my stack (CDN <script> for static sites; `npm i gsap` + dynamic import
+   for bundled apps — register ScrollTrigger with gsap.registerPlugin(ScrollTrigger)).
+   If the module is pure CSS / vanilla JS, do NOT add GSAP.
 3. Scope the styles so they don't leak into the rest of my site (CSS module,
    styled component, or a unique wrapper class — not bare global selectors).
 4. Map the component's hard-coded colors/fonts to my design tokens: [list your
@@ -29,7 +32,8 @@ Please:
 6. Tell me exactly where to mount it and show the import/usage snippet.
 
 Keep the animation behavior identical to the original. Don't add dependencies
-beyond GSAP. Surgical changes only.
+beyond what the component already uses (only GSAP if it's actually present).
+Surgical changes only.
 ```
 
 ## The 30 modules

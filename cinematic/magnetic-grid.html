@@ -42,13 +42,24 @@
 <script>
 (function(){
   var grid=document.getElementById('repelGrid');
-  var cols=window.innerWidth<600?8:12;
-  var rows=window.innerWidth<600?6:8;
+  // See PR #2 round 2 R2-3: dot count depended on innerWidth captured once at
+  // load, but CSS swaps the grid layout at 600px. Crossing that breakpoint on
+  // resize/rotate left a stale dot count. Rebuild when the breakpoint flips.
   var dots=[];
-  for(var i=0;i<cols*rows;i++){
-    var d=document.createElement('div');d.className='repel-dot';
-    grid.appendChild(d);dots.push(d);
+  var lastSmall=null;
+  function buildDots(){
+    var small=window.innerWidth<600;
+    if(small===lastSmall) return;
+    lastSmall=small;
+    var cols=small?8:12, rows=small?6:8;
+    grid.innerHTML='';dots=[];
+    for(var i=0;i<cols*rows;i++){
+      var d=document.createElement('div');d.className='repel-dot';
+      grid.appendChild(d);dots.push(d);
+    }
   }
+  buildDots();
+  window.addEventListener('resize',buildDots);
   var mx=-9999,my=-9999;
   document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY});
   function update(){

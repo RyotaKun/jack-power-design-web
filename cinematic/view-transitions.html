@@ -339,21 +339,32 @@ var products = {
 };
 
 var overlay = document.getElementById('overlay');
+var detailImage = document.getElementById('detailImage');
+var activeCard = null; // See PR #2 round 2 R2-1: track which swatch owns the shared vt-name
 
 function openProduct(card) {
   var id = card.dataset.product;
   var p = products[id];
-  // See PR #2 round 1 R1-5: drive the actual View Transitions API so matching
-  // view-transition-names morph; fall back to the fade/scale on unsupported browsers.
+  // See PR #2 round 1 R1-5 + round 2 R2-1: a morph needs the SAME
+  // view-transition-name on the old element (swatch) and the new one
+  // (#detailImage). The swatch's name is its --vt-name (swatch-N). Move that
+  // name onto #detailImage and clear it on the swatch so the name isn't
+  // duplicated in one snapshot; restore both on close.
+  var vtName = getComputedStyle(card).getPropertyValue('--vt-name').trim();
   var apply = function() {
-    document.getElementById('detailImage').style.background = p.bg;
+    detailImage.style.background = p.bg;
     document.getElementById('detailName').textContent = p.name;
     document.getElementById('detailPrice').textContent = p.price;
     document.getElementById('detailDesc').textContent = p.desc;
+    if (vtName) {
+      card.style.viewTransitionName = 'none';
+      detailImage.style.viewTransitionName = vtName;
+    }
     overlay.classList.add('open');
     overlay.offsetHeight; // force reflow then animate
     overlay.classList.add('visible');
   };
+  activeCard = card;
   if (document.startViewTransition) {
     document.startViewTransition(apply);
   } else {
@@ -363,7 +374,16 @@ function openProduct(card) {
 
 function closeProduct(e, force) {
   if (force || e.target === overlay) {
-    overlay.classList.remove('visible');
+    var restore = function() {
+      overlay.classList.remove('visible');
+      detailImage.style.viewTransitionName = 'detail-image';
+      if (activeCard) { activeCard.style.viewTransitionName = ''; activeCard = null; }
+    };
+    if (document.startViewTransition) {
+      document.startViewTransition(restore);
+    } else {
+      restore();
+    }
     setTimeout(function() { overlay.classList.remove('open'); }, 300);
   }
 }

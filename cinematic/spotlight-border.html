@@ -54,8 +54,8 @@
 <script>
 (function(){
   var grid=document.getElementById('spotGrid');
+  var cards=grid.querySelectorAll('.spot-card'); // See PR #2 round 2 R2-2: cache NodeList off the mousemove hot path
   grid.addEventListener('mousemove',function(e){
-    var cards=grid.querySelectorAll('.spot-card');
     cards.forEach(function(c){
       var r=c.getBoundingClientRect();
       c.style.setProperty('--mx',(e.clientX-r.left)+'px');
