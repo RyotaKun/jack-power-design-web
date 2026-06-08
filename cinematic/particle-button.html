@@ -68,8 +68,13 @@
 <footer>Cinematic Module — Particle Explosion Button</footer>
 <script>
 (function(){
+  // See PR #2 round 6 R6-3: the click effects are JS-driven (not CSS animation),
+  // so the R5 CSS reset doesn't stop them. Suppress the burst under reduced-motion
+  // — the button still responds, it just doesn't spray particles.
+  var reducedMotion=(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   document.querySelectorAll('.explode-btn').forEach(function(btn){
     btn.addEventListener('click',function(e){
+      if(reducedMotion)return;
       var rect=btn.getBoundingClientRect();
       var cx=rect.left+rect.width/2;
       var cy=rect.top+rect.height/2;

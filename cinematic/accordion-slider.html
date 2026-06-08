@@ -306,11 +306,19 @@
 
 <script>
 // Optional: click to lock a panel open on mobile
+// See PR #2 round 6 R6-1: panels are JS-clickable plain divs. Make them
+// keyboard-accessible — focusable + Enter/Space activate like a button.
 document.querySelectorAll('.accordion-panel, .accordion-v-panel').forEach(function(panel) {
-  panel.addEventListener('click', function() {
+  function activate() {
     var siblings = panel.parentElement.children;
     for (var i = 0; i < siblings.length; i++) siblings[i].classList.remove('active');
     panel.classList.add('active');
+  }
+  panel.setAttribute('role', 'button');
+  panel.setAttribute('tabindex', '0');
+  panel.addEventListener('click', activate);
+  panel.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); activate(); }
   });
 });
 </script>
