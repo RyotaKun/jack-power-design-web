@@ -55,7 +55,10 @@
   var dots=[];
   var lastSmall=null;
   function buildDots(){
-    var small=window.innerWidth<600;
+    // See PR #2 round 9 R9-1: match the CSS breakpoint exactly. CSS is
+    // @media(max-width:600px) which includes ==600; innerWidth<600 excluded it,
+    // so at exactly 600px JS built 12x8 while CSS laid out 8x6.
+    var small=window.matchMedia('(max-width: 600px)').matches;
     if(small===lastSmall) return;
     lastSmall=small;
     var cols=small?8:12, rows=small?6:8;

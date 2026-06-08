@@ -88,6 +88,9 @@
 <footer>Cinematic Module — Circular Text Path</footer>
 <script>
 (function(){
+  // See PR #2 round 9 R9-2: the scroll-reactive rotation is JS-driven, so the
+  // CSS reset can't stop it. Skip ScrollTrigger under reduced-motion.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
   gsap.registerPlugin(ScrollTrigger);
   var svg=document.getElementById('scrollSvg');
   var angle=0;
