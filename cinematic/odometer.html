@@ -28,7 +28,7 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
-  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -68,7 +68,7 @@
       digit.appendChild(strip);odo.appendChild(digit);
     });
     if(suffix){var s=document.createElement('span');s.className='stat-suffix';s.textContent=suffix;odo.appendChild(s)}
-    // See PR #2 round 7 R7-5: under reduced-motion, snap each digit to its final
+    // Under reduced-motion, snap each digit to its final
     // value with no roll/delay (and no scroll trigger).
     var reducedMotion=(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     var settle=function(){

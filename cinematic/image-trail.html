@@ -25,7 +25,7 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
-  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -42,7 +42,7 @@
 </section>
 <section class="trail-section-2" id="trailArea2">
   <div class="trail-list">
-    <!-- See PR #2 round 11 R11-7: placeholder links — block the #-jump that disrupts the hover demo -->
+    <!-- placeholder links — block the #-jump that disrupts the hover demo -->
     <a href="#" class="trail-link" data-hue="0" onclick="return false">Branding</a>
     <a href="#" class="trail-link" data-hue="60" onclick="return false">Websites</a>
     <a href="#" class="trail-link" data-hue="120" onclick="return false">Motion</a>
@@ -57,7 +57,7 @@
 <footer>Cinematic Module — Hover Image Trail</footer>
 <script>
 (function(){
-  // See PR #2 round 7 R7-1: under reduced-motion, skip the cursor-trail entirely
+  // Under reduced-motion, skip the cursor-trail entirely
   // and restore a normal cursor (the section sets cursor:none for the effect).
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('.trail-section, .trail-section-2').forEach(function(s) {

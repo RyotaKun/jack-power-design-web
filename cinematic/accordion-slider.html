@@ -181,7 +181,7 @@
     .accordion-panel:hover, .accordion-panel.active { height: 280px; flex: none !important; }
     .panel-title { writing-mode: horizontal-tb; position: relative; bottom: auto; left: auto; padding: 18px 20px; }
   }
-  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -305,9 +305,8 @@
 <footer>Cinematic Module — Accordion Image Slider</footer>
 
 <script>
-// Optional: click to lock a panel open on mobile
-// See PR #2 round 6 R6-1: panels are JS-clickable plain divs. Make them
-// keyboard-accessible — focusable + Enter/Space activate like a button.
+// Optional: click to lock a panel open on mobile.
+// Panels are JS-clickable plain divs. Make them keyboard-accessible — focusable + Enter/Space activate like a button.
 document.querySelectorAll('.accordion-panel, .accordion-v-panel').forEach(function(panel) {
   function activate() {
     var siblings = panel.parentElement.children;

@@ -203,9 +203,9 @@
     .cards-grid { grid-template-columns: 1fr; }
     .cursor-glow { display: none; }
   }
-  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
-    .cursor-glow{display:none} /* See PR #2 round 10 R11-1: JS bails so the glow would sit static near top-left; hide it */
+    .cursor-glow{display:none} /* JS bails so the glow would sit static near top-left; hide it */
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
 </style>
@@ -276,7 +276,7 @@
 
 <script>
 (function() {
-  // See PR #2 round 5 R5-sweep: bail before starting the loop under reduced-motion
+  // Bail before starting the loop under reduced-motion
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
 
   // ─── 1. Cursor Glow ───
@@ -342,7 +342,7 @@
   resizeRipple();
   window.addEventListener('resize', resizeRipple);
 
-  // See PR #2 round 8 R8-4: the ripple loop ran forever even with no ripples.
+  // The ripple loop ran forever even with no ripples.
   // Start it on the first ripple, stop it when the list drains.
   var rippleRunning = false;
   rippleArea.addEventListener('click', function(e) {

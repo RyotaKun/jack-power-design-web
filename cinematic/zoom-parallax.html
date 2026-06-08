@@ -198,7 +198,7 @@
     .details { grid-template-columns: 1fr; }
     .shape-1, .shape-3 { display: none; }
   }
-  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -235,7 +235,7 @@
       <div class="product-card">
         <h2>The product lands here</h2>
         <p>After the cinematic zoom, the product card appears at the center. The visitor has traveled through the brand story to arrive at the offer.</p>
-        <a href="#" onclick="return false">Start free trial</a><!-- See PR #2 round 11 R11-3: block #-jump on placeholder CTA -->
+        <a href="#" onclick="return false">Start free trial</a><!-- block the #-jump on this placeholder CTA -->
       </div>
     </div>
   </div>
@@ -274,7 +274,7 @@
 
 <script>
 (function() {
-  // See PR #2 round 6 R6-2: .layer-product and .detail-block start hidden in CSS
+  // .layer-product and .detail-block start hidden in CSS
   // and are revealed by scrubbed GSAP. Under reduced-motion the R5 CSS reset
   // collapses the scrub, so that content could never appear. Reveal it
   // statically and skip the scroll animations entirely.

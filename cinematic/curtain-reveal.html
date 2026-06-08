@@ -31,7 +31,7 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
-  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -48,7 +48,7 @@
     <div class="curtain-content">
       <h3>The product lives here</h3>
       <p>Behind the curtain is your reveal moment. Product launch, announcement, or hero video. The visitor scrolls to open it.</p>
-      <a href="#" onclick="return false">Explore now</a><!-- See PR #2 round 11 R11-5: block #-jump on placeholder CTA -->
+      <a href="#" onclick="return false">Explore now</a><!-- block the #-jump on this placeholder CTA -->
     </div>
     <div class="curtain-left" id="cLeft"><h2>DIS</h2></div>
     <div class="curtain-right" id="cRight"><h2>COVER</h2></div>
@@ -62,7 +62,7 @@
 <footer>Cinematic Module — Curtain Reveal</footer>
 <script>
 (function(){
-  // See PR #2 round 7 R7-2: scrubbed GSAP curtain reveal. Under reduced-motion
+  // Scrubbed GSAP curtain reveal. Under reduced-motion
   // the R5 CSS reset collapses the scrub, so open the curtains statically and
   // skip ScrollTrigger.
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -60,7 +60,7 @@
 
   /* Respect users who opt out of motion */
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto !important; } /* See PR #2 round 10 R10-1: scroll-behavior only applies to the scroll container, not * */
+    html { scroll-behavior: auto !important; } /* scroll-behavior only applies to the scroll container, not * */
     *, *::before, *::after {
       animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important; scroll-behavior: auto !important;

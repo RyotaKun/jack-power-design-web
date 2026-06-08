@@ -26,7 +26,7 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
-  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
@@ -58,7 +58,7 @@
 <script>
 (function(){
   var grid=document.getElementById('spotGrid');
-  var cards=grid.querySelectorAll('.spot-card'); // See PR #2 round 2 R2-2: cache NodeList off the mousemove hot path
+  var cards=grid.querySelectorAll('.spot-card'); // Cache NodeList off the mousemove hot path
   grid.addEventListener('mousemove',function(e){
     cards.forEach(function(c){
       var r=c.getBoundingClientRect();

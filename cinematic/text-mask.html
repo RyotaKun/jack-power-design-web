@@ -197,7 +197,7 @@
 
     <div class="mask-subtext">
       <p>The text fills with colour as you scroll — forcing visitors to engage with your headline before they see anything else.</p>
-      <a href="#" onclick="return false">See the code</a><!-- See PR #2 round 11 R11-4: block #-jump on placeholder CTA -->
+      <a href="#" onclick="return false">See the code</a><!-- block the #-jump on this placeholder CTA -->
     </div>
   </div>
 </section>
@@ -222,6 +222,14 @@
 
 <script>
 (function() {
+  // Under reduced-motion, reveal the masked headline + subtext + fade-up
+  // sections statically and skip the scroll-driven GSAP, matching the other
+  // scroll modules (a bare skip would leave them hidden by their CSS start state).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.mask-reveal').forEach(function(el){ el.style.clipPath = 'inset(0% 0 0 0)'; });
+    document.querySelectorAll('.mask-subtext, .fade-up').forEach(function(el){ el.style.opacity = '1'; el.style.transform = 'none'; });
+    return;
+  }
   gsap.registerPlugin(ScrollTrigger);
   var section = document.querySelector('.mask-section');
 
@@ -265,7 +273,7 @@
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
-  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
   }
