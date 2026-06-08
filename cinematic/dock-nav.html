@@ -22,6 +22,10 @@
   .content{padding:60px 24px 120px;max-width:600px;margin:0 auto;text-align:center}
   .content h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .content p{font-size:17px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>

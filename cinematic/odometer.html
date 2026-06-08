@@ -28,6 +28,10 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -64,15 +68,21 @@
       digit.appendChild(strip);odo.appendChild(digit);
     });
     if(suffix){var s=document.createElement('span');s.className='stat-suffix';s.textContent=suffix;odo.appendChild(s)}
-    ScrollTrigger.create({trigger:odo,start:'top 85%',once:true,onEnter:function(){
+    // See PR #2 round 7 R7-5: under reduced-motion, snap each digit to its final
+    // value with no roll/delay (and no scroll trigger).
+    var reducedMotion=(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var settle=function(){
       var strips=odo.querySelectorAll('.odo-strip');
       strips.forEach(function(strip,i){
         var target=parseInt(digits[i]);
         var h=strip.children[0].offsetHeight;
+        if(reducedMotion){strip.style.transition='none';}
         strip.style.transform='translateY(-'+(target*h)+'px)';
-        strip.style.transitionDelay=(i*0.12)+'s';
+        strip.style.transitionDelay=reducedMotion?'0s':(i*0.12)+'s';
       });
-    }});
+    };
+    if(reducedMotion){settle();}
+    else{ScrollTrigger.create({trigger:odo,start:'top 85%',once:true,onEnter:settle});}
   });
 })();
 </script>

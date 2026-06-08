@@ -25,6 +25,10 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -52,6 +56,14 @@
 <footer>Cinematic Module — Hover Image Trail</footer>
 <script>
 (function(){
+  // See PR #2 round 7 R7-1: under reduced-motion, skip the cursor-trail entirely
+  // and restore a normal cursor (the section sets cursor:none for the effect).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.trail-section, .trail-section-2').forEach(function(s) {
+      s.style.cursor = 'auto';
+    });
+    return;
+  }
   var colors=['#a8748e','#748ea8','#8ea874','#a8a074','#74a8a0','#a07448','#7448a0','#48a074'];
   var pool=[];var poolSize=20;var lastX=0,lastY=0;var threshold=60;
   for(var i=0;i<poolSize;i++){

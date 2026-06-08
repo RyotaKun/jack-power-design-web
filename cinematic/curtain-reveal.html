@@ -31,6 +31,10 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+  /* See PR #2 round 7 R7-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -58,6 +62,14 @@
 <footer>Cinematic Module — Curtain Reveal</footer>
 <script>
 (function(){
+  // See PR #2 round 7 R7-2: scrubbed GSAP curtain reveal. Under reduced-motion
+  // the R5 CSS reset collapses the scrub, so open the curtains statically and
+  // skip ScrollTrigger.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var l=document.getElementById('cLeft'); if(l) l.style.transform='translateX(-100%)';
+    var r=document.getElementById('cRight'); if(r) r.style.transform='translateX(100%)';
+    return;
+  }
   gsap.registerPlugin(ScrollTrigger);
   var s=document.querySelector('.curtain-section');
   gsap.to('#cLeft',{xPercent:-100,ease:'power2.inOut',scrollTrigger:{trigger:s,start:'top top',end:'60% top',scrub:.5}});
