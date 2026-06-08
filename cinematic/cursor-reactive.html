@@ -203,6 +203,10 @@
     .cards-grid { grid-template-columns: 1fr; }
     .cursor-glow { display: none; }
   }
+  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -271,6 +275,9 @@
 
 <script>
 (function() {
+  // See PR #2 round 5 R5-sweep: bail before starting the loop under reduced-motion
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+
   // ─── 1. Cursor Glow ───
   var glow = document.getElementById('glow');
   var mx = 0, my = 0, gx = 0, gy = 0;

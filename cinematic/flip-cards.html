@@ -33,6 +33,10 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -44,19 +48,20 @@
 <section class="cards-section">
   <div class="cards-label">Hover or tap to flip</div>
   <div class="flip-grid">
-    <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+    <!-- See PR #2 round 5 R5-sweep: clickable divs need role=button, tabindex=0, and onkeydown for keyboard users -->
+    <div class="flip-card" role="button" tabindex="0" onclick="this.classList.toggle('flipped')" onkeydown="flipKey(event)"><div class="flip-inner">
       <div class="flip-front"><div class="icon">&#9650;</div><h3>Strategy</h3><p>Positioning and market fit</p></div>
       <div class="flip-back"><h3>Strategy</h3><p>We spend the first two weeks in research. Competitive teardowns, user interviews, and a positioning document that becomes the north star for every design decision.</p><div class="back-link">Learn more</div></div>
     </div></div>
-    <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+    <div class="flip-card" role="button" tabindex="0" onclick="this.classList.toggle('flipped')" onkeydown="flipKey(event)"><div class="flip-inner">
       <div class="flip-front"><div class="icon">&#9670;</div><h3>Design</h3><p>Interface and experience</p></div>
       <div class="flip-back"><h3>Design</h3><p>Component library, interaction patterns, and motion principles. We design in the browser so what you review is what ships. No Figma-to-code translation loss.</p><div class="back-link">Learn more</div></div>
     </div></div>
-    <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+    <div class="flip-card" role="button" tabindex="0" onclick="this.classList.toggle('flipped')" onkeydown="flipKey(event)"><div class="flip-inner">
       <div class="flip-front"><div class="icon">&#9632;</div><h3>Development</h3><p>Production-grade code</p></div>
       <div class="flip-back"><h3>Development</h3><p>TypeScript, edge functions, CI/CD from commit one. Every route is pre-rendered, every image optimised, every interaction hardware-accelerated.</p><div class="back-link">Learn more</div></div>
     </div></div>
-    <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+    <div class="flip-card" role="button" tabindex="0" onclick="this.classList.toggle('flipped')" onkeydown="flipKey(event)"><div class="flip-inner">
       <div class="flip-front"><div class="icon">&#9733;</div><h3>Growth</h3><p>Analytics and iteration</p></div>
       <div class="flip-back"><h3>Growth</h3><p>Fortnightly sprint cycles with data reviews. A/B tests, funnel analysis, and conversion optimisation. The first version is the starting line, not the finish.</p><div class="back-link">Learn more</div></div>
     </div></div>
@@ -68,6 +73,10 @@
   <p>The flip interaction rewards curiosity. The front face is a teaser, the back is the detail. Visitors who flip are self-selecting for interest, which means higher engagement per view. Service pages, team bios, and pricing tiers all convert better with this pattern.</p>
 </section>
 <footer>Cinematic Module — 3D Flip Cards</footer>
+<script>
+// See PR #2 round 5 R5-sweep: Enter/Space flips the card for keyboard users
+function flipKey(e){ if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){ e.preventDefault(); e.currentTarget.classList.toggle('flipped'); } }
+</script>
 <div style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;font-size:11px;color:#5a5a5e;text-align:center;z-index:99;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border-top:1px solid #1e1e22;font-family:Outfit,sans-serif">&copy; Created by Jay from <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboLabs</a>. Learn more at <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboNuggets</a></div>
 </body>
 </html>

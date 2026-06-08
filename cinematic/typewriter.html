@@ -29,6 +29,10 @@
   .explain h2{font-size:clamp(24px,4vw,40px);font-weight:600;letter-spacing:-.02em;margin-bottom:16px}
   .explain p{font-size:17px;color:var(--muted);line-height:1.6}
   footer{border-top:1px solid #1a1a1d;padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -64,6 +68,12 @@
 <footer>Cinematic Module — Typewriter Effect</footer>
 <script>
 (function(){
+  // See PR #2 round 5 R5-sweep: bail before starting loops under reduced-motion; show final text statically
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.getElementById('cycler').innerHTML='We build websites.<span class="type-cursor"></span>';
+    document.getElementById('codeType').textContent='const site = await claude.build({\n  url: "example.com",\n  theme: "dark",\n  animation: "scroll-frame"\n});\n\nconsole.log(site.url);\n// => https://example.vercel.app';
+    return;
+  }
   // Cycling headline
   var phrases=['We build websites.','We build brands.','We build products.','We build trust.'];
   var el=document.getElementById('cycler');

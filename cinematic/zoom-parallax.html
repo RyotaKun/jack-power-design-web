@@ -198,6 +198,10 @@
     .details { grid-template-columns: 1fr; }
     .shape-1, .shape-3 { display: none; }
   }
+  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>

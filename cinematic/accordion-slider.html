@@ -181,6 +181,10 @@
     .accordion-panel:hover, .accordion-panel.active { height: 280px; flex: none !important; }
     .panel-title { writing-mode: horizontal-tb; position: relative; bottom: auto; left: auto; padding: 18px 20px; }
   }
+  /* See PR #2 round 5 R5-sweep: respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
