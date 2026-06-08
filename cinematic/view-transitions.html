@@ -343,15 +343,22 @@ var overlay = document.getElementById('overlay');
 function openProduct(card) {
   var id = card.dataset.product;
   var p = products[id];
-  document.getElementById('detailImage').style.background = p.bg;
-  document.getElementById('detailName').textContent = p.name;
-  document.getElementById('detailPrice').textContent = p.price;
-  document.getElementById('detailDesc').textContent = p.desc;
-
-  overlay.classList.add('open');
-  // Force reflow then animate
-  overlay.offsetHeight;
-  overlay.classList.add('visible');
+  // See PR #2 round 1 R1-5: drive the actual View Transitions API so matching
+  // view-transition-names morph; fall back to the fade/scale on unsupported browsers.
+  var apply = function() {
+    document.getElementById('detailImage').style.background = p.bg;
+    document.getElementById('detailName').textContent = p.name;
+    document.getElementById('detailPrice').textContent = p.price;
+    document.getElementById('detailDesc').textContent = p.desc;
+    overlay.classList.add('open');
+    overlay.offsetHeight; // force reflow then animate
+    overlay.classList.add('visible');
+  };
+  if (document.startViewTransition) {
+    document.startViewTransition(apply);
+  } else {
+    apply();
+  }
 }
 
 function closeProduct(e, force) {

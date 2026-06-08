@@ -271,7 +271,7 @@
 
     function animate() {
       var speed = (baseSpeed + scrollVelocity * 0.15) * speedMult;
-      x += direction * -1 * speed / 60; // 60fps
+      x += direction * speed / 60; // 60fps  See PR #2 round 1 R1-1 (was direction*-1, inverting motion + breaking reset)
 
       // Reset seamlessly
       if (direction === -1 && x <= -contentWidth) x += contentWidth;
