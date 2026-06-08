@@ -340,31 +340,34 @@ var products = {
 
 var overlay = document.getElementById('overlay');
 var detailImage = document.getElementById('detailImage');
-var activeCard = null; // See PR #2 round 2 R2-1: track which swatch owns the shared vt-name
+var activeSwatch = null; // See PR #2 round 3 R3-1..3: the .product-swatch (NOT the card) owns --vt-name + view-transition-name
 
 function openProduct(card) {
   var id = card.dataset.product;
   var p = products[id];
-  // See PR #2 round 1 R1-5 + round 2 R2-1: a morph needs the SAME
-  // view-transition-name on the old element (swatch) and the new one
-  // (#detailImage). The swatch's name is its --vt-name (swatch-N). Move that
-  // name onto #detailImage and clear it on the swatch so the name isn't
-  // duplicated in one snapshot; restore both on close.
-  var vtName = getComputedStyle(card).getPropertyValue('--vt-name').trim();
+  // See PR #2 R1-5 → R2-1 → R3-1..3: a morph needs the SAME
+  // view-transition-name on the old element and the new one (#detailImage).
+  // --vt-name and `view-transition-name: var(--vt-name)` live on the child
+  // .product-swatch, not the .product-card that onclick passes in. Custom
+  // properties don't inherit child→parent, so we must read AND clear the name
+  // on the swatch itself. Move it onto #detailImage for the transition; restore
+  // on close.
+  var swatch = card.querySelector('.product-swatch');
+  var vtName = swatch ? getComputedStyle(swatch).getPropertyValue('--vt-name').trim() : '';
   var apply = function() {
     detailImage.style.background = p.bg;
     document.getElementById('detailName').textContent = p.name;
     document.getElementById('detailPrice').textContent = p.price;
     document.getElementById('detailDesc').textContent = p.desc;
-    if (vtName) {
-      card.style.viewTransitionName = 'none';
+    if (vtName && swatch) {
+      swatch.style.viewTransitionName = 'none';
       detailImage.style.viewTransitionName = vtName;
     }
     overlay.classList.add('open');
     overlay.offsetHeight; // force reflow then animate
     overlay.classList.add('visible');
   };
-  activeCard = card;
+  activeSwatch = swatch;
   if (document.startViewTransition) {
     document.startViewTransition(apply);
   } else {
@@ -377,7 +380,7 @@ function closeProduct(e, force) {
     var restore = function() {
       overlay.classList.remove('visible');
       detailImage.style.viewTransitionName = 'detail-image';
-      if (activeCard) { activeCard.style.viewTransitionName = ''; activeCard = null; }
+      if (activeSwatch) { activeSwatch.style.viewTransitionName = ''; activeSwatch = null; }
     };
     if (document.startViewTransition) {
       document.startViewTransition(restore);
