@@ -73,7 +73,7 @@
     el.innerHTML='<h3>'+item.t+'</h3><p>'+item.d+'</p>';
     canvas.appendChild(el);
   });
-  var dragging=false,sx=0,sy=0,tx=0,ty=0,cx=0,cy=0;
+  var dragging=false,sx=0,sy=0,cx=0,cy=0; // R13-4: dropped unused tx,ty
   area.addEventListener('mousedown',function(e){dragging=true;sx=e.clientX-cx;sy=e.clientY-cy;area.querySelector('.pan-hint').style.opacity='0'});
   window.addEventListener('mousemove',function(e){if(!dragging)return;cx=e.clientX-sx;cy=e.clientY-sy;canvas.style.transform='translate('+cx+'px,'+cy+'px)'});
   window.addEventListener('mouseup',function(){dragging=false});

@@ -65,11 +65,19 @@
 <footer>Cinematic Module — Scroll SVG Draw</footer>
 <script>
 (function(){
-  gsap.registerPlugin(ScrollTrigger);
   var path=document.getElementById('mainPath');
   var len=path.getTotalLength();
   path.style.strokeDasharray=len;
+  // R13-2: GSAP scrubs the stroke draw + milestone fades; the CSS reset can't
+  // stop GSAP transforms. Under reduced-motion, snap the path fully drawn and
+  // reveal the milestones statically, then skip ScrollTrigger.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    path.style.strokeDashoffset=0;
+    document.querySelectorAll('.milestone').forEach(function(m){ m.style.opacity='1'; });
+    return;
+  }
   path.style.strokeDashoffset=len;
+  gsap.registerPlugin(ScrollTrigger);
   gsap.to(path,{strokeDashoffset:0,ease:'none',scrollTrigger:{trigger:'.draw-section',start:'top top',end:'bottom bottom',scrub:.3}});
   document.querySelectorAll('.milestone').forEach(function(m,i){
     gsap.to(m,{opacity:1,duration:.5,scrollTrigger:{trigger:'.draw-section',start:(15+i*20)+'% top',end:(22+i*20)+'% top',scrub:true}});

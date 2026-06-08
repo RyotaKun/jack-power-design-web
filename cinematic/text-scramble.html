@@ -206,6 +206,12 @@
 
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
 
+  // Escape resolved chars before innerHTML concat so a literal < or & in the
+  // final text can't break rendering or inject markup (R13-3).
+  function esc(c) {
+    return c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' : c;
+  }
+
   // ─── Scramble Engine ───
   function scrambleText(el, finalText, duration) {
     duration = duration || 1500;
@@ -228,7 +234,7 @@
         var charThreshold = (i / len) * 0.7 + 0.15;
         if (progress >= charThreshold) {
           resolved[i] = true;
-          html += '<span class="char resolved">' + finalText[i] + '</span>';
+          html += '<span class="char resolved">' + esc(finalText[i]) + '</span>';
         } else {
           html += '<span class="char scrambling">' + chars[Math.floor(Math.random() * chars.length)] + '</span>';
         }
