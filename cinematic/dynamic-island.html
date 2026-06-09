@@ -91,6 +91,8 @@ function setIsland(text,color){
 }
 function resetIsland(){
   var island=document.getElementById('island');
+  island.classList.remove('expanded');            // R19-4: return to the default collapsed state
+  island.setAttribute('aria-expanded','false');   // R19-4: keep AT state in sync
   island.querySelector('.island-dot').style.background='#4f46e5';
   island.querySelector('.island-label').textContent='3 notifications';
 }

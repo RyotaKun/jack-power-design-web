@@ -55,17 +55,26 @@
   var dock=document.getElementById('dock');
   var items=dock.querySelectorAll('.dock-item');
   var baseSize=48,maxSize=72,range=120;
-  dock.addEventListener('mousemove',function(e){
+  // R19-1: skip magnification entirely under reduced-motion (items stay base size).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+  // R19-1: throttle the per-item getBoundingClientRect loop to one update per frame.
+  var lastX=0,queued=false;
+  function apply(){
+    queued=false;
     items.forEach(function(item){
       var rect=item.getBoundingClientRect();
       var cx=rect.left+rect.width/2;
-      var dist=Math.abs(e.clientX-cx);
+      var dist=Math.abs(lastX-cx);
       var scale=Math.max(baseSize,maxSize-((dist/range)*(maxSize-baseSize)));
       if(dist>range)scale=baseSize;
       item.style.width=scale+'px';
       item.style.height=scale+'px';
       item.style.fontSize=(scale*0.45)+'px';
     });
+  }
+  dock.addEventListener('mousemove',function(e){
+    lastX=e.clientX;
+    if(!queued){queued=true;requestAnimationFrame(apply);}
   });
   dock.addEventListener('mouseleave',function(){
     items.forEach(function(item){

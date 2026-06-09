@@ -352,6 +352,19 @@ var detailCard = document.getElementById('detailCard');
 var detailImage = document.getElementById('detailImage');
 var activeSwatch = null; // The .product-swatch (NOT the card) owns --vt-name + view-transition-name
 var lastTrigger = null;  // Card to return focus to on close
+
+// R19-2/3: single reduced-motion check; run a DOM update via the View Transitions
+// API only when motion is allowed, otherwise apply it immediately (no morph).
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function runTransition(fn) {
+  if (document.startViewTransition && !prefersReducedMotion()) {
+    return document.startViewTransition(fn);
+  }
+  fn();
+  return null;
+}
 var closeTimer = null;   // Pending close-timeout, cleared on fast re-open (R13-1)
 
 // Enter/Space activate the card like a button.
@@ -392,12 +405,8 @@ function openProduct(card) {
   lastTrigger = card; // Remember trigger, move focus into dialog
   if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } // cancel a pending close so re-opening fast doesn't hide the new overlay or steal focus
   var afterOpen = function() { detailCard.focus(); };
-  if (document.startViewTransition) {
-    document.startViewTransition(apply).finished.then(afterOpen, afterOpen);
-  } else {
-    apply();
-    afterOpen();
-  }
+  var t = runTransition(apply); // skips the morph under reduced-motion
+  if (t && t.finished) { t.finished.then(afterOpen, afterOpen); } else { afterOpen(); }
 }
 
 function closeProduct(e, force) {
@@ -407,17 +416,13 @@ function closeProduct(e, force) {
       detailImage.style.viewTransitionName = 'detail-image';
       if (activeSwatch) { activeSwatch.style.viewTransitionName = ''; activeSwatch = null; }
     };
-    if (document.startViewTransition) {
-      document.startViewTransition(restore);
-    } else {
-      restore();
-    }
+    var reduced = prefersReducedMotion(); // R19-3: one check, reused below
+    runTransition(restore); // skips the morph under reduced-motion
     // Return focus only AFTER the overlay is actually
     // closed (was firing immediately while the modal was still visible ~300ms).
     // Track the timer so a fast re-open can cancel it (see openProduct).
     // R17: under reduced-motion the transition is collapsed, so wait 0ms instead
     // of 300 — otherwise an invisible overlay blocks interaction + delays focus.
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     closeTimer = setTimeout(function() {
       overlay.classList.remove('open');
       document.body.style.overflow = ''; // R15-2: restore background scroll once closed
