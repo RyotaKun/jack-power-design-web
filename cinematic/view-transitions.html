@@ -309,8 +309,8 @@
       <div class="detail-price" id="detailPrice"></div>
       <p id="detailDesc"></p>
       <div class="detail-actions">
-        <button class="btn-primary">Add to bag</button>
-        <button class="btn-ghost" onclick="closeProduct(event, true)">Close</button>
+        <button type="button" class="btn-primary">Add to bag</button>
+        <button type="button" class="btn-ghost" onclick="closeProduct(event, true)">Close</button>
       </div>
     </div>
   </div>
@@ -327,7 +327,7 @@
     <div class="morph-expanded-content">
       <h4>Recent activity</h4>
       <p>Marcus R. purchased Ember case. Ava T. left a 5-star review. New restock alert for Midnight Matte.</p>
-      <button class="close-morph" onclick="event.stopPropagation(); toggleMorph();">Collapse</button>
+      <button type="button" class="close-morph" onclick="event.stopPropagation(); toggleMorph();">Collapse</button>
     </div>
   </div>
 </section>
@@ -384,6 +384,7 @@ function openProduct(card) {
       detailImage.style.viewTransitionName = vtName;
     }
     overlay.classList.add('open');
+    document.body.style.overflow = 'hidden'; // R15-1: lock background scroll while the modal is open
     overlay.offsetHeight; // force reflow then animate
     overlay.classList.add('visible');
   };
@@ -416,6 +417,7 @@ function closeProduct(e, force) {
     // Track the timer so a fast re-open can cancel it (see openProduct).
     closeTimer = setTimeout(function() {
       overlay.classList.remove('open');
+      document.body.style.overflow = ''; // R15-2: restore background scroll once closed
       if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
       closeTimer = null;
     }, 300);

@@ -59,11 +59,20 @@
 (function(){
   var grid=document.getElementById('spotGrid');
   var cards=grid.querySelectorAll('.spot-card'); // Cache NodeList off the mousemove hot path
+  // R15-4: throttle to one update per animation frame so high-frequency pointer
+  // moves don't trigger a getBoundingClientRect()-per-card layout thrash each event.
+  var lastX=0,lastY=0,queued=false;
   grid.addEventListener('mousemove',function(e){
-    cards.forEach(function(c){
-      var r=c.getBoundingClientRect();
-      c.style.setProperty('--mx',(e.clientX-r.left)+'px');
-      c.style.setProperty('--my',(e.clientY-r.top)+'px');
+    lastX=e.clientX;lastY=e.clientY;
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      cards.forEach(function(c){
+        var r=c.getBoundingClientRect();
+        c.style.setProperty('--mx',(lastX-r.left)+'px');
+        c.style.setProperty('--my',(lastY-r.top)+'px');
+      });
     });
   });
 })();
