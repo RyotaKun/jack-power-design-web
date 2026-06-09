@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Transition Morphing — Cinematic Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #1a1a1f;
+    --muted: #6b6b73;
+    --accent: #e85d3a;
+    --accent-light: rgba(232, 93, 58, 0.08);
+    --border: #e8e8ec;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .hero {
+    min-height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 40px 24px;
+  }
+  .hero-label {
+    font-size: 12px; font-weight: 400; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 5.5vw, 56px); font-weight: 600;
+    line-height: 1.15; max-width: 700px; letter-spacing: -0.025em;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    margin-top: 16px; font-size: 18px; color: var(--muted);
+    max-width: 50ch; line-height: 1.5;
+  }
+
+  /* ─── Product Grid ─── */
+  .products-section {
+    padding: 40px 24px 120px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .products-label {
+    text-align: center;
+    font-size: 12px; font-weight: 400; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 40px;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+    position: relative;
+  }
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+  }
+  .product-card:active { transform: scale(0.98); }
+
+  .product-swatch {
+    width: 100%; aspect-ratio: 1;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    view-transition-name: var(--vt-name);
+  }
+  .product-card h3 {
+    font-size: 16px; font-weight: 600; margin-bottom: 4px;
+  }
+  .product-card .price {
+    font-size: 14px; color: var(--muted);
+  }
+  .product-card .tag {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--accent);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ─── Expanded Product View (overlay) ─── */
+  .product-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 24px;
+  }
+  .product-overlay.open {
+    display: flex;
+  }
+  .product-overlay.visible { opacity: 1; }
+
+  .product-detail {
+    background: var(--surface);
+    border-radius: 24px;
+    max-width: 600px; width: 100%;
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12);
+  }
+  .product-overlay.visible .product-detail {
+    transform: scale(1) translateY(0);
+  }
+  .detail-image {
+    width: 100%; aspect-ratio: 16/10;
+    view-transition-name: detail-image;
+  }
+  .detail-body {
+    padding: 32px;
+  }
+  .detail-body h2 {
+    font-size: 28px; font-weight: 600;
+    letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .detail-body .detail-price {
+    font-size: 18px; color: var(--accent); font-weight: 500; margin-bottom: 16px;
+  }
+  .detail-body p {
+    font-size: 15px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;
+  }
+  .detail-actions {
+    display: flex; gap: 12px;
+  }
+  .btn-primary {
+    padding: 12px 28px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-primary:hover { transform: translateY(-1px) scale(1.03); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-ghost {
+    padding: 12px 28px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-ghost:hover { background: var(--bg); }
+
+  /* ─── Morph Nav Demo ─── */
+  .morph-section {
+    padding: 80px 24px 120px;
+    text-align: center;
+    max-width: 680px; margin: 0 auto;
+  }
+  .morph-section h2 {
+    font-size: clamp(24px, 4vw, 36px); font-weight: 600;
+    letter-spacing: -0.02em; margin-bottom: 12px;
+  }
+  .morph-section > p {
+    font-size: 17px; color: var(--muted); line-height: 1.5; margin-bottom: 40px;
+  }
+
+  .morph-pill {
+    display: inline-flex; align-items: center;
+    padding: 10px 24px;
+    background: var(--text);
+    color: var(--surface);
+    border-radius: 100px;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    max-width: 180px;
+    white-space: nowrap;
+  }
+  .morph-pill.expanded {
+    max-width: 500px;
+    padding: 20px 32px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    flex-direction: column;
+    align-items: stretch;
+    white-space: normal;
+    gap: 12px;
+  }
+  .morph-pill .pill-label { transition: opacity 0.2s; }
+  .morph-pill.expanded .pill-label { display: none; }
+  .morph-expanded-content {
+    display: none;
+    text-align: left;
+  }
+  .morph-pill.expanded .morph-expanded-content { display: block; }
+  .morph-expanded-content h4 {
+    font-size: 16px; font-weight: 600; margin-bottom: 6px;
+  }
+  .morph-expanded-content p {
+    font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px;
+  }
+  .morph-expanded-content .close-morph {
+    font-size: 12px; color: var(--accent); cursor: pointer;
+    background: none; border: none; font-family: 'Outfit', sans-serif;
+    padding: 0;
+  }
+  .morph-expanded-content .close-morph:hover { text-decoration: underline; }
+
+  /* ─── Explanation ─── */
+  .explain {
+    padding: 120px 24px;
+    text-align: center; max-width: 680px; margin: 0 auto;
+    border-top: 1px solid var(--border);
+  }
+  .explain .tag-el {
+    display: inline-block; font-size: 11px; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+    border: 1px solid var(--accent-light);
+    padding: 4px 12px; border-radius: 100px; margin-bottom: 20px;
+  }
+  .explain h2 {
+    font-size: clamp(24px, 4vw, 40px); font-weight: 600;
+    letter-spacing: -0.02em; margin-bottom: 16px;
+  }
+  .explain p { font-size: 17px; color: var(--muted); line-height: 1.6; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px; text-align: center;
+    font-size: 12px; color: var(--muted);
+  }
+
+  @media (max-width: 768px) {
+    .products-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+  }
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-label">Module 18 — View Transition Morphing</div>
+  <h1>Elements <span>shape-shift</span> between states</h1>
+  <p>Cards expand into detail views. Buttons morph into forms. No page jumps, no jarring cuts. Click a product below.</p>
+</section>
+
+<!-- Product Grid -->
+<section class="products-section">
+  <div class="products-label">Click any card to expand</div>
+  <div class="products-grid">
+    <!-- Cards are activated via onclick but were plain
+         divs — not keyboard-focusable. Added role=button, tabindex=0, and keydown
+         (Enter/Space) so keyboard users can open the overlay. -->
+    <div class="product-card" data-product="1" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
+      <div class="product-swatch" style="background: linear-gradient(135deg, #2a2a2e, #404048); --vt-name: swatch-1;"></div>
+      <h3>Midnight Matte</h3>
+      <div class="price">$129</div>
+    </div>
+    <div class="product-card" data-product="2" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
+      <div class="tag">Popular</div>
+      <div class="product-swatch" style="background: linear-gradient(135deg, #e85d3a, #ff8866); --vt-name: swatch-2;"></div>
+      <h3>Ember</h3>
+      <div class="price">$149</div>
+    </div>
+    <div class="product-card" data-product="3" role="button" tabindex="0" onclick="openProduct(this)" onkeydown="cardKey(event, this)">
+      <div class="product-swatch" style="background: linear-gradient(135deg, #c8a97e, #e8d5b5); --vt-name: swatch-3;"></div>
+      <h3>Desert Sand</h3>
+      <div class="price">$129</div>
+    </div>
+  </div>
+</section>
+
+<!-- Product Overlay -->
+<!-- dialog semantics + Escape + focus move -->
+<div class="product-overlay" id="overlay" onclick="closeProduct(event)">
+  <div class="product-detail" id="detailCard" role="dialog" aria-modal="true" aria-labelledby="detailName" tabindex="-1">
+    <div class="detail-image" id="detailImage"></div>
+    <div class="detail-body">
+      <h2 id="detailName"></h2>
+      <div class="detail-price" id="detailPrice"></div>
+      <p id="detailDesc"></p>
+      <div class="detail-actions">
+        <button type="button" class="btn-primary">Add to bag</button>
+        <button type="button" class="btn-ghost" onclick="closeProduct(event, true)">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Morph Pill Demo -->
+<section class="morph-section">
+  <h2>Dynamic island morph</h2>
+  <p>A compact pill expands into a rich info panel. Click it.</p>
+
+  <!-- morph pill keyboard-operable -->
+  <div class="morph-pill" id="morphPill" role="button" tabindex="0" aria-expanded="false" onclick="toggleMorph()" onkeydown="morphKey(event)">
+    <span class="pill-label">3 notifications</span>
+    <div class="morph-expanded-content">
+      <h4>Recent activity</h4>
+      <p>Marcus R. purchased Ember case. Ava T. left a 5-star review. New restock alert for Midnight Matte.</p>
+      <button type="button" class="close-morph" onclick="event.stopPropagation(); toggleMorph();">Collapse</button>
+    </div>
+  </div>
+</section>
+
+<section class="explain">
+  <div class="tag-el">Why it works</div>
+  <h2>No momentum lost</h2>
+  <p>Every page jump is a chance for the visitor to leave. View transitions keep them in flow — the card they clicked smoothly becomes the detail view, the button becomes the form. The visitor never feels like they navigated away. Reduces perceived friction between browsing and buying.</p>
+</section>
+
+<footer>Cinematic Module — View Transition Morphing</footer>
+
+<script>
+var products = {
+  '1': { name: 'Midnight Matte', price: '$129', bg: 'linear-gradient(135deg, #2a2a2e, #404048)', desc: 'Precision-moulded polycarbonate with a soft-touch matte finish. Resists fingerprints and adds virtually no bulk. MagSafe compatible.' },
+  '2': { name: 'Ember', price: '$149', bg: 'linear-gradient(135deg, #e85d3a, #ff8866)', desc: 'Our signature gradient. Ceramic-coated for scratch resistance. Raised camera lip. The one everyone asks about.' },
+  '3': { name: 'Desert Sand', price: '$129', bg: 'linear-gradient(135deg, #c8a97e, #e8d5b5)', desc: 'Warm neutral tone that pairs with everything. Vegan leather texture. Subtle debossed logo. Understated on purpose.' }
+};
+
+var overlay = document.getElementById('overlay');
+var detailCard = document.getElementById('detailCard');
+var detailImage = document.getElementById('detailImage');
+var activeSwatch = null; // The .product-swatch (NOT the card) owns --vt-name + view-transition-name
+var lastTrigger = null;  // Card to return focus to on close
+
+// R19-2/3: single reduced-motion check; run a DOM update via the View Transitions
+// API only when motion is allowed, otherwise apply it immediately (no morph).
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function runTransition(fn) {
+  if (document.startViewTransition && !prefersReducedMotion()) {
+    return document.startViewTransition(fn);
+  }
+  fn();
+  return null;
+}
+var closeTimer = null;   // Pending close-timeout, cleared on fast re-open (R13-1)
+
+// Enter/Space activate the card like a button.
+function cardKey(e, card) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+    e.preventDefault();
+    openProduct(card);
+  }
+}
+
+function openProduct(card) {
+  var id = card.dataset.product;
+  var p = products[id];
+  // A morph needs the SAME
+  // view-transition-name on the old element and the new one (#detailImage).
+  // --vt-name and `view-transition-name: var(--vt-name)` live on the child
+  // .product-swatch, not the .product-card that onclick passes in. Custom
+  // properties don't inherit child→parent, so we must read AND clear the name
+  // on the swatch itself. Move it onto #detailImage for the transition; restore
+  // on close.
+  var swatch = card.querySelector('.product-swatch');
+  var vtName = swatch ? getComputedStyle(swatch).getPropertyValue('--vt-name').trim() : '';
+  var apply = function() {
+    detailImage.style.background = p.bg;
+    document.getElementById('detailName').textContent = p.name;
+    document.getElementById('detailPrice').textContent = p.price;
+    document.getElementById('detailDesc').textContent = p.desc;
+    if (vtName && swatch) {
+      swatch.style.viewTransitionName = 'none';
+      detailImage.style.viewTransitionName = vtName;
+    }
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden'; // R15-1: lock background scroll while the modal is open
+    overlay.offsetHeight; // force reflow then animate
+    overlay.classList.add('visible');
+  };
+  activeSwatch = swatch;
+  lastTrigger = card; // Remember trigger, move focus into dialog
+  if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } // cancel a pending close so re-opening fast doesn't hide the new overlay or steal focus
+  var afterOpen = function() { detailCard.focus(); };
+  var t = runTransition(apply); // skips the morph under reduced-motion
+  if (t && t.finished) { t.finished.then(afterOpen, afterOpen); } else { afterOpen(); }
+}
+
+function closeProduct(e, force) {
+  if (force || e.target === overlay) {
+    var restore = function() {
+      overlay.classList.remove('visible');
+      detailImage.style.viewTransitionName = 'detail-image';
+      if (activeSwatch) { activeSwatch.style.viewTransitionName = ''; activeSwatch = null; }
+    };
+    var reduced = prefersReducedMotion(); // R19-3: one check, reused below
+    runTransition(restore); // skips the morph under reduced-motion
+    // Return focus only AFTER the overlay is actually
+    // closed (was firing immediately while the modal was still visible ~300ms).
+    // Track the timer so a fast re-open can cancel it (see openProduct).
+    // R17: under reduced-motion the transition is collapsed, so wait 0ms instead
+    // of 300 — otherwise an invisible overlay blocks interaction + delays focus.
+    closeTimer = setTimeout(function() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = ''; // R15-2: restore background scroll once closed
+      if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
+      closeTimer = null;
+    }, reduced ? 0 : 300);
+  }
+}
+
+// Escape closes the dialog when it's open.
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && overlay.classList.contains('open')) {
+    closeProduct(null, true);
+  }
+});
+
+function toggleMorph() {
+  var el = document.getElementById('morphPill');
+  var open = el.classList.toggle('expanded');
+  el.setAttribute('aria-expanded', open ? 'true' : 'false'); // R17: expose expand state to AT
+}
+
+// Enter/Space toggles the morph pill for keyboard users.
+function morphKey(e) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); toggleMorph(); }
+}
+</script>
+<div style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;font-size:11px;color:#5a5a5e;text-align:center;z-index:99;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border-top:1px solid #1e1e22;font-family:Outfit,sans-serif">&copy; Created by Jay from <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboLabs</a>. Learn more at <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboNuggets</a></div>
+</body>
+</html>
