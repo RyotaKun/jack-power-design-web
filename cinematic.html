@@ -395,7 +395,8 @@ Surgical changes only.</pre>
       // R16-1: non-secure context — select the text and prompt manual copy,
       // then reset the label so the button doesn't stay stuck on "Press Ctrl+C".
       const r = document.createRange(); r.selectNode(pre);
-      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      const sel = window.getSelection(); // R22-1: may be null in some WebViews/restricted contexts
+      if (sel) { sel.removeAllRanges(); sel.addRange(r); }
       // R20-3: show the correct modifier key per platform (⌘ on macOS, Ctrl elsewhere)
       const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
       btn.textContent = isMac ? 'Press ⌘+C' : 'Press Ctrl+C';
