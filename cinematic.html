@@ -388,9 +388,12 @@ Surgical changes only.</pre>
       btn.classList.add('copied');
       setTimeout(() => { btn.textContent = btn.dataset.default; btn.classList.remove('copied'); }, 1800);
     } catch (e) {
+      // R16-1: non-secure context — select the text and prompt manual copy,
+      // then reset the label so the button doesn't stay stuck on "Press Ctrl+C".
       const r = document.createRange(); r.selectNode(pre);
       const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
       btn.textContent = 'Press Ctrl+C';
+      setTimeout(() => { btn.textContent = btn.dataset.default; }, 2500);
     }
   });
 </script>

@@ -72,9 +72,12 @@
   buildDots();
   window.addEventListener('resize',buildDots);
   if (reducedMotion) { return; } // grid is built; skip the repel animation
-  var mx=-9999,my=-9999;
-  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY});
-  function update(){
+  // R16-2: was a perpetual rAF calling getBoundingClientRect() per dot every
+  // frame even when idle. Now schedule a single rAF per mousemove (coalesced),
+  // and do one reset pass on leave — no frames burned while the mouse is idle.
+  var mx=-9999,my=-9999,queued=false;
+  function apply(){
+    queued=false;
     dots.forEach(function(d){
       var r=d.getBoundingClientRect();
       var cx=r.left+r.width/2;
@@ -91,9 +94,10 @@
         d.style.transform='translate(0,0)';
       }
     });
-    requestAnimationFrame(update);
   }
-  update();
+  function schedule(){ if(!queued){queued=true;requestAnimationFrame(apply);} }
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;schedule();});
+  grid.addEventListener('mouseleave',function(){mx=-9999;my=-9999;schedule();});
 })();
 </script>
 <div style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;font-size:11px;color:#5a5a5e;text-align:center;z-index:99;background:rgba(9,9,11,.85);backdrop-filter:blur(8px);border-top:1px solid #1e1e22;font-family:Outfit,sans-serif">&copy; Created by Jay from <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboLabs</a>. Learn more at <a href="https://robonuggets.com" style="color:#e8793a;text-decoration:none">RoboNuggets</a></div>

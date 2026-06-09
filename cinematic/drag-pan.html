@@ -77,7 +77,7 @@
   area.addEventListener('mousedown',function(e){dragging=true;sx=e.clientX-cx;sy=e.clientY-cy;area.querySelector('.pan-hint').style.opacity='0'});
   window.addEventListener('mousemove',function(e){if(!dragging)return;cx=e.clientX-sx;cy=e.clientY-sy;canvas.style.transform='translate('+cx+'px,'+cy+'px)'});
   window.addEventListener('mouseup',function(){dragging=false});
-  area.addEventListener('touchstart',function(e){dragging=true;sx=e.touches[0].clientX-cx;sy=e.touches[0].clientY-cy},{passive:true});
+  area.addEventListener('touchstart',function(e){dragging=true;sx=e.touches[0].clientX-cx;sy=e.touches[0].clientY-cy;area.querySelector('.pan-hint').style.opacity='0'},{passive:true});/* R16-3: fade the hint on touch too, not just mousedown */
   area.addEventListener('touchmove',function(e){if(!dragging)return;cx=e.touches[0].clientX-sx;cy=e.touches[0].clientY-sy;canvas.style.transform='translate('+cx+'px,'+cy+'px)'},{passive:true});
   area.addEventListener('touchend',function(){dragging=false});
 })();
