@@ -60,10 +60,10 @@
 
   /* Respect users who opt out of motion */
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto !important; } /* scroll-behavior only applies to the scroll container, not * */
+    html { scroll-behavior: auto !important; } /* scroll-behavior only applies to the scroll container; keep it here, not on * (R23-1) */
     *, *::before, *::after {
       animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
     }
   }
 

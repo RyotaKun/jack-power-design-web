@@ -223,8 +223,8 @@
   }
   /* Respect users who opt out of motion — freeze the looping card demos */
   @media (prefers-reduced-motion: reduce){
-    html{scroll-behavior:auto !important} /* scroll-behavior applies to the scroll container, not * */
-    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+    html{scroll-behavior:auto !important} /* scroll-behavior applies to the scroll container; keep it here, not on * (R23-2) */
+    *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important}
   }
 </style>
 </head>
