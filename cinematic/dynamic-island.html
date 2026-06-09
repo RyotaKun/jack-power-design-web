@@ -83,6 +83,7 @@ function islandKey(e){if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.pre
 function setIsland(text,color){
   var island=document.getElementById('island');
   island.classList.remove('expanded');
+  island.setAttribute('aria-expanded','false'); // R18-1: keep AT state in sync when collapsing
   island.querySelector('.island-dot').style.background=color;
   island.querySelector('.island-label').textContent=text;
   island.style.animation='islandPulse .3s ease';

@@ -43,8 +43,8 @@
   <div class="carousel-track" id="track"></div>
   <div class="carousel-nav">
     <!-- icon-only buttons need type + aria-label -->
-    <button type="button" aria-label="Previous" onclick="move(-1)">&larr;</button>
-    <button type="button" aria-label="Next" onclick="move(1)">&rarr;</button>
+    <button type="button" id="coverPrev" aria-label="Previous">&larr;</button>
+    <button type="button" id="coverNext" aria-label="Next">&rarr;</button>
   </div>
 </section>
 <section class="explain">
@@ -73,7 +73,10 @@
     el.addEventListener('click',function(){current=i;render()});
     track.appendChild(el);
   });
-  window.move=function(dir){current=Math.max(0,Math.min(items.length-1,current+dir));render()};
+  // R18-2/3: keep move() scoped + bind listeners instead of leaking window.move + inline onclick
+  function move(dir){current=Math.max(0,Math.min(items.length-1,current+dir));render()}
+  document.getElementById('coverPrev').addEventListener('click',function(){move(-1)});
+  document.getElementById('coverNext').addEventListener('click',function(){move(1)});
   function render(){
     var els=track.children;
     for(var i=0;i<els.length;i++){
