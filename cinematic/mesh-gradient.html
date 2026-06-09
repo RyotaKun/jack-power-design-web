@@ -73,7 +73,7 @@
       var w=canvas.width,h=canvas.height;
       ctx.fillStyle='#0a0a0b';ctx.fillRect(0,0,w,h);
       blobs.forEach(function(b){
-        b.x+=b.vx/w;b.y+=b.vy/h;
+        b.x+=b.vx*dpr/w;b.y+=b.vy*dpr/h; // R25-1: scale by dpr so motion speed is consistent on high-DPI screens
         if(b.x<-.2||b.x>1.2)b.vx*=-1;
         if(b.y<-.2||b.y>1.2)b.vy*=-1;
         var grd=ctx.createRadialGradient(b.x*w,b.y*h,0,b.x*w,b.y*h,b.r*Math.max(w,h));

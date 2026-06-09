@@ -80,15 +80,17 @@
   // Cycling headline
   var phrases=['We build websites.','We build brands.','We build products.','We build trust.'];
   var el=document.getElementById('cycler');
-  var pi=0,ci=0,deleting=false,pause=0;
+  var pi=0,ci=0,deleting=false;
   function tick(){
     var phrase=phrases[pi];
     if(!deleting){
       ci++;
-      if(ci>phrase.length){pause++;if(pause>40){deleting=true;pause=0}requestAnimationFrame(tick);return}
+      // R25-2: hold the full phrase with a single timed pause instead of spinning
+      // rAF ~60fps while nothing changes (~40 frames * 16ms ≈ 650ms).
+      if(ci>phrase.length){ci=phrase.length;deleting=true;setTimeout(tick,650);return}
     }else{
       ci--;
-      if(ci<0){ci=0;deleting=false;pi=(pi+1)%phrases.length;pause=0;setTimeout(tick,400);return}
+      if(ci<0){ci=0;deleting=false;pi=(pi+1)%phrases.length;setTimeout(tick,400);return}
     }
     el.innerHTML=phrase.substring(0,ci)+'<span class="type-cursor"></span>';
     setTimeout(tick,deleting?30:60);
