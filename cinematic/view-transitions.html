@@ -322,7 +322,7 @@
   <p>A compact pill expands into a rich info panel. Click it.</p>
 
   <!-- morph pill keyboard-operable -->
-  <div class="morph-pill" id="morphPill" role="button" tabindex="0" onclick="toggleMorph()" onkeydown="morphKey(event)">
+  <div class="morph-pill" id="morphPill" role="button" tabindex="0" aria-expanded="false" onclick="toggleMorph()" onkeydown="morphKey(event)">
     <span class="pill-label">3 notifications</span>
     <div class="morph-expanded-content">
       <h4>Recent activity</h4>
@@ -415,12 +415,15 @@ function closeProduct(e, force) {
     // Return focus only AFTER the overlay is actually
     // closed (was firing immediately while the modal was still visible ~300ms).
     // Track the timer so a fast re-open can cancel it (see openProduct).
+    // R17: under reduced-motion the transition is collapsed, so wait 0ms instead
+    // of 300 — otherwise an invisible overlay blocks interaction + delays focus.
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     closeTimer = setTimeout(function() {
       overlay.classList.remove('open');
       document.body.style.overflow = ''; // R15-2: restore background scroll once closed
       if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
       closeTimer = null;
-    }, 300);
+    }, reduced ? 0 : 300);
   }
 }
 
@@ -432,7 +435,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 function toggleMorph() {
-  document.getElementById('morphPill').classList.toggle('expanded');
+  var el = document.getElementById('morphPill');
+  var open = el.classList.toggle('expanded');
+  el.setAttribute('aria-expanded', open ? 'true' : 'false'); // R17: expose expand state to AT
 }
 
 // Enter/Space toggles the morph pill for keyboard users.

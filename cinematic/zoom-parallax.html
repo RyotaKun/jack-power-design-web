@@ -279,9 +279,19 @@
   // collapses the scrub, so that content could never appear. Reveal it
   // statically and skip the scroll animations entirely.
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('.layer-product, .detail-block').forEach(function(el) {
-      el.style.opacity = '1';
-      el.style.transform = 'none';
+    // R17: don't just reveal the layers — the 500vh sticky section would still
+    // force scrolling through empty viewports. Collapse + un-pin so the product
+    // card and details are the visible content; drop the decorative overlap layers.
+    var section = document.querySelector('.zoom-section');
+    if (section) { section.style.height = 'auto'; }
+    var sticky = document.querySelector('.zoom-sticky');
+    if (sticky) { sticky.style.position = 'static'; sticky.style.minHeight = '0'; sticky.style.overflow = 'visible'; sticky.style.padding = '80px 24px'; }
+    document.querySelectorAll('.layer-bg, .layer-mid, .layer-fg').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.layer-product').forEach(function(el) {
+      el.style.position = 'static'; el.style.opacity = '1'; el.style.transform = 'none';
+    });
+    document.querySelectorAll('.detail-block').forEach(function(el) {
+      el.style.opacity = '1'; el.style.transform = 'none';
     });
     return;
   }
