@@ -167,13 +167,27 @@
 
 <script>
 (function() {
-  gsap.registerPlugin(ScrollTrigger);
   var track = document.getElementById('hTrack');
   var section = document.getElementById('hSection');
   var cards = track.querySelectorAll('.h-card');
   var progress = document.getElementById('hProgress');
   var fill = document.getElementById('hFill');
   var label = document.getElementById('hLabel');
+  var totalCards = cards.length;
+
+  // R14: vertical scroll is hijacked into a horizontal track translate; the
+  // cards sit off-screen and are only revealed by the scrub. A bare skip would
+  // leave all but the first card unreachable. Under reduced-motion, un-pin and
+  // let the track wrap so every card is reachable by normal scroll; skip GSAP.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var sticky = section.querySelector('.h-scroll-sticky');
+    if (sticky) { sticky.style.position='static'; sticky.style.height='auto'; sticky.style.overflow='visible'; }
+    track.style.flexWrap = 'wrap';
+    track.style.justifyContent = 'center';
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
 
   // Calculate how far to scroll horizontally
   function getScrollDistance() {
@@ -181,7 +195,6 @@
   }
 
   // Set section height to accommodate horizontal scroll
-  var totalCards = cards.length;
   section.style.height = (totalCards * 100) + 'vh';
 
   gsap.to(track, {

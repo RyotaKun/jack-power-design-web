@@ -135,6 +135,9 @@
 
 <script>
 (function() {
+  // R14: scroll-driven scale/fade of older cards. Under reduced-motion, skip it
+  // — every card stays full-scale and fully opaque (content-safe; nothing hidden).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
   // Optional: slight scale-down on older cards as new ones cover them
   gsap.registerPlugin(ScrollTrigger);
   var cards = document.querySelectorAll('.stack-card');

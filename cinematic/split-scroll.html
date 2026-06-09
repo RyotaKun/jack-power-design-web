@@ -68,8 +68,22 @@
 <footer>Cinematic Module — Split Screen Scroll</footer>
 <script>
 (function(){
-  gsap.registerPlugin(ScrollTrigger);
   var s=document.querySelector('.split-section');
+  // R14: this is a 400vh pinned, scroll-translated split. The columns are
+  // absolutely positioned and only revealed by the scrub, so a bare skip would
+  // hide most items. Under reduced-motion, un-pin: collapse the section, let the
+  // sticky container and columns flow normally so every item is reachable by
+  // plain vertical scroll, then skip ScrollTrigger.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    s.style.height='auto';
+    var sticky=s.querySelector('.split-sticky');
+    if(sticky){sticky.style.position='static';sticky.style.height='auto';sticky.style.overflow='visible';sticky.style.flexDirection='column';}
+    s.querySelectorAll('.split-col').forEach(function(c){c.style.overflow='visible';});
+    s.querySelectorAll('.split-col-inner').forEach(function(c){c.style.position='static';});
+    s.querySelectorAll('.split-item').forEach(function(it){it.style.height='auto';it.style.minHeight='50vh';});
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
   // Count from DOM + function-based values + invalidateOnRefresh so resize/orientation recompute
   var count=document.querySelectorAll('#leftCol .split-item').length||4;
   var dist=function(){return -(count-1)*window.innerHeight;};

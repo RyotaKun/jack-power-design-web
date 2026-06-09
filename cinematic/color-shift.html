@@ -65,6 +65,10 @@
 <footer>Cinematic Module — Scroll Color Shift</footer>
 <script>
 (function(){
+  // R14: scroll-driven body recolour. Under reduced-motion, skip the scroll
+  // triggers (the page just keeps its default palette — all content stays
+  // readable, no motion). Content-safe: nothing is hidden by this effect.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
   gsap.registerPlugin(ScrollTrigger);
   document.querySelectorAll('.section[data-bg]').forEach(function(s){
     ScrollTrigger.create({
