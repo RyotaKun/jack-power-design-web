@@ -290,6 +290,10 @@ Please:
 5. Make it responsive and respect prefers-reduced-motion (disable/shorten the
    animation when the user opts out).
 6. Tell me exactly where to mount it and show the import/usage snippet.
+7. Drop the demo chrome: each source file has a fixed "Created by Jay from
+   RoboLabs" attribution bar pinned to the bottom of the viewport — remove that
+   element so it doesn't ship as overlay UI in my product. (Keep the credit in a
+   code comment if you like, just not on-screen.)
 
 Keep the animation behavior identical to the original. Don't add dependencies
 beyond what the component already uses (only GSAP if it's actually present).

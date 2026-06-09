@@ -96,7 +96,9 @@
     });
   }
   function schedule(){ if(!queued){queued=true;requestAnimationFrame(apply);} }
-  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;schedule();});
+  // R21-1: scope to the grid — the repel only acts within maxDist of the cursor,
+  // so tracking document-wide mousemove just burned work while scrolling elsewhere.
+  grid.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;schedule();});
   grid.addEventListener('mouseleave',function(){mx=-9999;my=-9999;schedule();});
 })();
 </script>
