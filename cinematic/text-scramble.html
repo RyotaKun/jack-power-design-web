@@ -236,7 +236,7 @@
           resolved[i] = true;
           html += '<span class="char resolved">' + esc(finalText[i]) + '</span>';
         } else {
-          html += '<span class="char scrambling">' + chars[Math.floor(Math.random() * chars.length)] + '</span>';
+          html += '<span class="char scrambling">' + esc(chars[Math.floor(Math.random() * chars.length)]) + '</span>'; // R24: chars includes '&' — escape it too
         }
       }
       el.innerHTML = html;
@@ -252,7 +252,7 @@
     var text = el.dataset.scramble;
     // Show placeholder
     el.innerHTML = text.split('').map(function(c) {
-      return c === ' ' ? ' ' : '<span class="char scrambling">' + chars[Math.floor(Math.random() * chars.length)] + '</span>';
+      return c === ' ' ? ' ' : '<span class="char scrambling">' + esc(chars[Math.floor(Math.random() * chars.length)]) + '</span>'; // R24: escape random glyph (chars includes '&')
     }).join('');
 
     ScrollTrigger.create({
