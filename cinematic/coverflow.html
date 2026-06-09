@@ -70,7 +70,13 @@
     var el=document.createElement('div');el.className='carousel-item';
     el.style.background=item.bg;
     el.innerHTML='<h3>'+item.title+'</h3><p>'+item.desc+'</p>';
+    // R20-2: make items keyboard-selectable, not just clickable
+    el.setAttribute('role','button');
+    el.setAttribute('tabindex','0');
     el.addEventListener('click',function(){current=i;render()});
+    el.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.preventDefault();current=i;render();}
+    });
     track.appendChild(el);
   });
   // R18-2/3: keep move() scoped + bind listeners instead of leaking window.move + inline onclick

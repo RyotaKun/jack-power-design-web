@@ -253,6 +253,7 @@
   document.querySelectorAll('.marquee-row').forEach(function(row) {
     var content = row.querySelector('.marquee-content');
     var clone = content.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true'); // R20-1: hide the duplicate from AT so it's not announced twice
     row.appendChild(clone);
   });
 
